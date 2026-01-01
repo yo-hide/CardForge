@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const imagePlaceholder = document.getElementById('image-placeholder');
     const dropZone = document.getElementById('drop-zone');
     const safetyStatus = document.getElementById('safety-status');
+    const cardNameInput = document.getElementById('card-name-input');
+    const charDescInput = document.getElementById('char-desc-input');
 
 
     let safetyModel = null;
@@ -20,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     initSafetyModel();
 
-    const templateInputs = document.querySelectorAll('input[name="design-template"]');
+    // const templateInputs = document.querySelectorAll('input[name="design-template"]');
     const rarityInputs = document.querySelectorAll('input[name="card-rarity"]');
     const attributeInputs = document.querySelectorAll('input[name="card-attribute"]');
     const artstyleInputs = document.querySelectorAll('input[name="card-artstyle"]');
@@ -43,17 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Remove initial generation to keep preview hidden until needed
     // updateAICardData();
 
-    // Handle Template Changes
-    templateInputs.forEach(input => {
-        input.addEventListener('change', (e) => {
-            cardPreview.classList.forEach(className => {
-                if (className.startsWith('theme-')) {
-                    cardPreview.classList.remove(className);
-                }
-            });
-            cardPreview.classList.add(`theme-${e.target.value}`);
-        });
+    // Handle Card Name Changes
+    cardNameInput.addEventListener('input', (e) => {
+        previewTitle.textContent = e.target.value || "Fabled Creature";
+        updateAICardData();
+        exitFullAIMode();
     });
+
+    charDescInput.addEventListener('input', () => {
+        exitFullAIMode();
+    });
+
+    // Handle Template Changes (Removed)
 
     // Handle Rarity Changes
     rarityInputs.forEach(input => {
@@ -236,25 +239,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const atk = previewAtk.textContent;
         const def = previewDef.textContent;
         const desc = previewDesc.textContent;
+        const charSpecifics = charDescInput.value;
 
         const attrElement = document.querySelector('input[name="card-attribute"]:checked');
         const attribute = attrElement ? attrElement.parentElement.querySelector('.attr-label').textContent : 'Neutral';
         const artElement = document.querySelector('input[name="card-artstyle"]:checked');
         const artStyleLabel = artElement ? artElement.parentElement.querySelector('.art-label').textContent : 'Standard';
-        const templateElement = document.querySelector('input[name="design-template"]:checked');
-        const templateLabel = templateElement ? templateElement.parentElement.querySelector('.template-label').textContent : 'Yu-Gi-Oh style';
 
-        // Construct a prompt for the ENTIRE card
-        const prompt = `A professional, high-quality, complete TCG/CCG trading card design for "${name}". 
-The card must feature:
-1. A sophisticated decorative frame in the style of "${templateLabel}".
-2. A prominent title area at the top displaying the name "${name}".
-3. A clear attribute symbol for "${attribute}".
-4. A central high-quality ${artStyleLabel} illustration of ${name}.
-5. A lower text box containing the description: "${desc}".
-6. Numbers for stats: "ATK ${atk} / DEF ${def}".
-7. A visible rarity marker "${rarity}".
-The overall layout should be clean, balanced, and cinematic, resembling a premium physical card game.`;
+        const cardName = cardNameInput.value.trim() || "[Auto-generate a creative name based on the visual]";
+
+        // Construct a structured prompt for the ENTIRE card in English
+        const prompt = `Role: You are a professional trading card designer.
+Objective: Create a single, high-impact trading card illustration that maximizes the characteristics of the character (from image or description below).
+
+Card Details:
+- Rarity: ${rarity}
+- Attribute: ${attribute} (Represent this visually with a graphic symbol/element)
+- Card Name: ${cardName}
+- Aspect Ratio: 1:1.4 (Vertical layout)
+- Status Stats: Include combat statistics determined by you (ATK, HP, and COST)
+- Background: A polished background reflecting the ${attribute} attribute and ${rarity} rarity.
+
+Layout Design:
+- Top Section: Display the ${attribute} attribute symbol, the card name, and the rarity marker.
+- Center Section: Feature a high-quality ${artStyleLabel} illustration of the character.
+- Bottom Section: A stylized text box containing ability descriptions and the stats (ATK, HP, COST).
+
+Character specific details: ${charSpecifics || "A powerful fantasy creature"}
+
+Ensure the text is legible, the layout is balanced, and it looks like a premium physical TCG card.`;
 
         const currentImage = previewImage.src.startsWith('data:') ? previewImage.src : null;
 
@@ -311,8 +324,9 @@ The overall layout should be clean, balanced, and cinematic, resembling a premiu
         }
     }
 
-    [imageInput, dropZone, ...templateInputs, ...rarityInputs, ...attributeInputs, ...artstyleInputs].forEach(el => {
+    [imageInput, dropZone, cardNameInput, charDescInput, ...rarityInputs, ...attributeInputs, ...artstyleInputs].forEach(el => {
         el.addEventListener('change', exitFullAIMode);
+        el.addEventListener('input', exitFullAIMode);
         el.addEventListener('drop', exitFullAIMode);
     });
 

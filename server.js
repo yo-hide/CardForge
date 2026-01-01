@@ -13,13 +13,16 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, './')));
 
 const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+
 // AI Provider Switch: 'google' or 'openai'
-const AI_PROVIDER = 'openai';
+const AI_PROVIDER = 'google';
 
 app.post('/api/generate-image', async (req, res) => {
     const bodySize = JSON.stringify(req.body).length;
@@ -32,17 +35,42 @@ app.post('/api/generate-image', async (req, res) => {
         if (!apiKey) return res.status(500).json({ error: 'Google API key is not configured.' });
 
         try {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
-            const instance = { prompt: prompt };
+            let finalPrompt = prompt;
 
-            // Note: Google image-to-image is currently disabled due to model constraints
+            // Step 1: Analyze image with Gemini if provided
+            if (image) {
+                console.log("Analyzing input image with Gemini 1.5 Flash...");
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+                // Remove the data:image/png;base64, part if present
+                const base64Image = image.split(',')[1] || image;
+
+                const result = await model.generateContent([
+                    `Analyze this image and provide a highly detailed, artistic description that captures its composition, key subjects, colors, and atmosphere. This description will be used to generate a fantasy TCG card illustration. The core theme should be: ${prompt}`,
+                    {
+                        inlineData: {
+                            data: base64Image,
+                            mimeType: "image/jpeg" // Usually resized to JPEG in frontend
+                        },
+                    },
+                ]);
+                finalPrompt = result.response.text();
+                console.log("Enhanced Prompt from Gemini:", finalPrompt);
+            }
+
+            // Step 2: Generate final card with Imagen
+            console.log("Generating card with Imagen 4.0...");
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
 
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    instances: [instance],
-                    parameters: { sampleCount: 1, aspectRatio: "1:1" }
+                    instances: [{ prompt: finalPrompt }],
+                    parameters: {
+                        sampleCount: 1,
+                        aspectRatio: "3:4" // Best vertical option for Imagen
+                    }
                 })
             });
 
@@ -90,7 +118,7 @@ app.post('/api/generate-image', async (req, res) => {
                 model: "dall-e-3",
                 prompt: finalPrompt,
                 n: 1,
-                size: "1024x1024",
+                size: "1024x1792",
                 response_format: "b64_json"
             });
 

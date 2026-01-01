@@ -54,6 +54,11 @@
                             <button class="btn-primary"
                                 onclick="document.getElementById('image-input').click()">ファイルを選択</button>
                         </div>
+
+                        <div class="char-prompt-area">
+                            <span class="divider-text">または</span>
+                            <textarea id="char-desc-input" placeholder="キャラクターの特徴（性別、服装、武器など）や雰囲気を入力..."></textarea>
+                        </div>
                     </div>
                 </div>
 
@@ -73,30 +78,11 @@
                 <h2 class="step-title"><span>2</span> カードを設定する</h2>
                 <div class="controls-panel glass-panel">
                     <div class="control-group">
-                        <label>デザインテンプレート</label>
-                        <div class="template-grid">
-                            <label class="template-option">
-                                <input type="radio" name="design-template" value="yugioh" checked>
-                                <span class="template-label">遊戯王風</span>
-                            </label>
-                            <label class="template-option">
-                                <input type="radio" name="design-template" value="pokemon">
-                                <span class="template-label">ポケカ風</span>
-                            </label>
-                            <label class="template-option">
-                                <input type="radio" name="design-template" value="onepiece">
-                                <span class="template-label">ワンピ風</span>
-                            </label>
-                            <label class="template-option">
-                                <input type="radio" name="design-template" value="duelmasters">
-                                <span class="template-label">デュエマ風</span>
-                            </label>
-                            <label class="template-option">
-                                <input type="radio" name="design-template" value="mtg">
-                                <span class="template-label">MtG風</span>
-                            </label>
-                        </div>
+                        <label for="card-name-input">カード名</label>
+                        <input type="text" id="card-name-input" class="full-width" placeholder="カード名を入力（未入力時は自動生成）">
                     </div>
+
+                    <!-- Design Template selection removed -->
 
                     <div class="control-group">
                         <label>属性</label>
@@ -107,8 +93,7 @@
                                     class="attr-label water">水</span></label>
                             <label class="attr-option"><input type="radio" name="card-attribute" value="thunder"><span
                                     class="attr-label thunder">雷</span></label>
-                            <label class="attr-option"><input type="radio" name="card-attribute" value="earth"><span
-                                    class="attr-label earth">土</span></label>
+
                             <label class="attr-option"><input type="radio" name="card-attribute" value="nature"><span
                                     class="attr-label nature">自然</span></label>
                             <label class="attr-option"><input type="radio" name="card-attribute" value="snow"><span
@@ -145,12 +130,8 @@
                         <div class="artstyle-grid">
                             <label class="art-option"><input type="radio" name="card-artstyle" value="photo"
                                     checked><span class="art-label">写真風</span></label>
-                            <label class="art-option"><input type="radio" name="card-artstyle"
-                                    value="classic-anime"><span class="art-label">クラシックアニメ</span></label>
-                            <label class="art-option"><input type="radio" name="card-artstyle"
-                                    value="modern-anime"><span class="art-label">モダンアニメ</span></label>
-                            <label class="art-option"><input type="radio" name="card-artstyle" value="sd"><span
-                                    class="art-label">SD風</span></label>
+                            <label class="art-option"><input type="radio" name="card-artstyle" value="anime"><span
+                                    class="art-label">アニメ風</span></label>
                             <label class="art-option"><input type="radio" name="card-artstyle" value="manga"><span
                                     class="art-label">マンガ風</span></label>
                             <label class="art-option"><input type="radio" name="card-artstyle" value="watercolor"><span
