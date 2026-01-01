@@ -9,11 +9,15 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, './')));
 
 // Proxy endpoint for Google Imagen 3 image generation
 app.post('/api/generate-image', async (req, res) => {
+    // Log body size for debugging
+    const bodySize = JSON.stringify(req.body).length;
+    console.log(`Request body size: ${(bodySize / 1024 / 1024).toFixed(2)} MB`);
+
     const { prompt, image } = req.body;
     const apiKey = process.env.GOOGLE_API_KEY;
 

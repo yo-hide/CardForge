@@ -146,12 +146,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             }
-            previewImage.src = dataUrl;
-            previewImage.classList.remove('hidden');
-            imagePlaceholder.classList.add('hidden');
+            // previewImage.src = dataUrl;
+            // previewImage.classList.remove('hidden');
+            // imagePlaceholder.classList.add('hidden');
 
-            // Show the preview section once an image is ready
-            document.getElementById('step-4').classList.remove('hidden');
+            // Downsize image for API submission (to avoid 413 error)
+            const img = new Image();
+            img.src = dataUrl;
+            await new Promise(resolve => img.onload = resolve);
+
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800; // Limit size
+            const scale = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scale;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Keep the processed image for API reference (hidden until AI generation)
+            previewImage.src = canvas.toDataURL('image/jpeg', 0.8);
+            previewImage.classList.add('hidden'); // Ensure it stays hidden initially
+            imagePlaceholder.classList.remove('hidden');
+
+            console.log("Base image ready for AI processing.");
         };
         reader.readAsDataURL(file);
     }
