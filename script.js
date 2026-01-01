@@ -11,10 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const atkInput = document.getElementById('card-atk');
     const defInput = document.getElementById('card-def');
     const templateInputs = document.querySelectorAll('input[name="design-template"]');
+    const rarityInputs = document.querySelectorAll('input[name="card-rarity"]');
 
     // Preview elements
     const cardPreview = document.getElementById('card-preview');
     const previewTitle = document.getElementById('preview-title');
+    const previewRarity = document.getElementById('preview-rarity');
     const previewType = document.getElementById('preview-type');
     const previewDesc = document.getElementById('preview-description');
     const previewAtk = document.getElementById('preview-atk');
@@ -22,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize theme
     cardPreview.classList.add('theme-yugioh');
+    cardPreview.classList.add('rarity-C');
 
     // Handle Template Changes
     templateInputs.forEach(input => {
@@ -34,6 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             // Add new theme class
             cardPreview.classList.add(`theme-${e.target.value}`);
+        });
+    });
+
+    // Handle Rarity Changes
+    rarityInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+            const val = e.target.value;
+            previewRarity.textContent = val;
+
+            // Remove old rarity class
+            cardPreview.classList.forEach(className => {
+                if (className.startsWith('rarity-')) {
+                    cardPreview.classList.remove(className);
+                }
+            });
+            // Add new rarity class
+            cardPreview.classList.add(`rarity-${val}`);
         });
     });
 

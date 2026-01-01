@@ -87,6 +87,24 @@
                     </div>
 
                     <div class="control-group">
+                        <label>レアリティ</label>
+                        <div class="rarity-grid">
+                            <label class="rarity-option"><input type="radio" name="card-rarity" value="C"
+                                    checked><span>C</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="U"><span>U</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="R"><span>R</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="SR"><span>SR</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="RR"><span>RR</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="UR"><span>UR</span></label>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
                         <label for="card-description">説明文</label>
                         <textarea id="card-description" placeholder="カードの効果やフレーバーテキストを入力してください..." rows="4"></textarea>
                     </div>
@@ -132,6 +150,7 @@
                                 <div class="card-stats">
                                     ATK / <span id="preview-atk">0</span> DEF / <span id="preview-def">0</span>
                                 </div>
+                                <div class="card-rarity-badge" id="preview-rarity">C</div>
                             </div>
                         </div>
                     </div>
