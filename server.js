@@ -36,7 +36,7 @@ app.post('/api/analyze-image', async (req, res) => {
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: `この画像を分析し、特徴、構成、色使い、雰囲気を捉えた非常に詳細で芸術的な説明を【日本語】で作成してください。` },
+                        { type: "text", text: `この画像を分析し、特徴、構成、色使い、雰囲気を捉えた説明を【日本語】で作成してください。` },
                         { type: "image_url", image_url: { url: image } }
                     ],
                 },
@@ -48,6 +48,35 @@ app.post('/api/analyze-image', async (req, res) => {
         return res.json({ analysis });
     } catch (error) {
         console.error('Analysis Error:', error);
+        return res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/refine-prompt', async (req, res) => {
+    const { prompt } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'No prompt provided.' });
+
+    try {
+        console.log("Refining prompt for high-quality Japanese content...");
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [
+                {
+                    role: "system",
+                    content: "あなたは最高級のトレーディングカードデザイナーです。ユーザーの指示を元に、DALL-E 3やGoogle Imagenにそのまま投げられる、具体的で美しい完成予想図プロンプトを作成してください。特に、カード名、カッコイイ異名、能力テキストを、不自然な日本語にならないよう『完璧な日本語』で定着させてください。"
+                },
+                {
+                    role: "user",
+                    content: `以下のドラフトプロンプトを分析し、名前、能力、配置、ステータス、背景、キャラクターの詳細を含む、画像生成AI向けに最適化された【最終的な日本語プロンプト】を作成してください。出力はそのままプロンプトとして使用できるテキストのみにしてください。\n\n指示書:\n${prompt}`
+                }
+            ],
+            temperature: 0.7
+        });
+        const refinedPrompt = response.choices[0].message.content;
+        console.log("--- Refined Prompt Created ---");
+        return res.json({ refinedPrompt });
+    } catch (error) {
+        console.error('Refinement Error:', error);
         return res.status(500).json({ error: error.message });
     }
 });

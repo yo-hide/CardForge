@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
             previewImage.classList.add('hidden');
             imagePlaceholder.classList.remove('hidden');
 
-            const analysisPrompt = `この画像を分析し、特徴、構成、色使い、雰囲気を捉えた非常に詳細で芸術的な説明を【日本語】で作成してください。`;
+            const analysisPrompt = `この画像を分析し、特徴、構成、色使い、雰囲気を捉えた説明を【日本語】で作成してください。`;
 
             console.log("--- GPT-4o 画像解析用プロンプト ---");
             console.log(analysisPrompt);
@@ -307,24 +307,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
         prompt += `\n\n文字の読みやすさ、レイアウトのバランスに配慮し、最高級の物理TCGカードのような質感と日本語タイポグラフィで仕上げてください。`;
 
-        console.log("--- 送信される最終プロンプト (Japanese / Imagen) ---");
-        console.log(prompt);
-        console.log("---------------------------------------");
-
         const currentImage = previewImage.src.startsWith('data:') ? previewImage.src : null;
 
         aiStatus.classList.remove('hidden');
         aiGenBtn.disabled = true;
 
         try {
+            console.log("--- ドラフト指示書 (Draft Instructions) ---");
+            console.log(prompt);
+            console.log("------------------------------------------");
+
+            // Step 1: Refine the prompt to get high-quality Japanese content
+            const refineResponse = await fetch('/api/refine-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt })
+            });
+            const refineData = await refineResponse.json();
+
+            if (refineData.error) throw new Error(refineData.error);
+
+            const finalRefinedPrompt = refineData.refinedPrompt;
+            console.log("--- 【最適化済】最終日本語プロンプト (Refined Prompt for Imagen) ---");
+            console.log(finalRefinedPrompt);
+            console.log("---------------------------------------------------------------");
+
+            // Step 2: Generate the image using the refined prompt
             const response = await fetch('/api/generate-image', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    prompt: prompt,
-                    image: currentImage // Note: In hybrid mode, Imagen uses only the prompt, but we send image just in case or for future unified vision.
+                    prompt: finalRefinedPrompt,
+                    image: currentImage
                 })
             });
 

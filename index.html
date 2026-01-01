@@ -14,7 +14,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- Local Libraries -->
     <script src="lib/html2canvas.min.js"></script>
-    <script src="lib/tf.min.js"></script>
+    <!-- tf.min.js is often bundled with nsfwjs; removing it to prevent 'already registered' warnings -->
+    <!-- <script src="lib/tf.min.js"></script> -->
     <script src="lib/nsfwjs.min.js"></script>
 </head>
 
@@ -29,7 +30,7 @@
         <header>
             <h1 class="logo">CardForge</h1>
             <p class="subtitle">あなただけの伝説の一枚を創り出そう</p>
-            <p class="version">Ver.1.008</p>
+            <p class="version">Ver.1.010</p>
         </header>
 
         <main class="vertical-flow">

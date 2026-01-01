@@ -1,62 +1,41 @@
-# CardForge AI画像生成プロセス解説 (ハイブリッド版)
+# CardForge AI画像生成プロセス解説 (ハイブリッド・リファイン版)
 
-本書では、CardForgeにおいてアップロードされた画像から「完成されたトレーディングカード」が生成されるまでの技術的なプロセスを解説します。現在は、解析にOpenAI、生成にGoogleという「ハイブリッド構成」を採用しています。
+本書では、CardForgeにおいてアップロードされた画像から「完成されたトレーディングカード」が生成されるまでの技術的なプロセスを解説します。
 
 ## 1. 使用している生成AI
-システムの各フェーズにおいて、それぞれの強みを持つAIモデルを組み合わせています。
+本システムでは、各工程で最適なAIを組み合わせることで、高品質な画像と正確な日本語タイピングを両立させています。
 
-*   **解析（Vision）:** `OpenAI GPT-4o`
-    *   アップロードされた画像を極めて詳細に分析し、その構図、色彩、被写体の特徴を、Imagen用の高品質なプロンプト（指示文）に変換します。
-*   **生成（Image Generation）:** `Google Imagen 4.0`
-    *   GPT-4oが作成した詳細な指示に基づき、1枚の完成された縦長カード画像をデザイン・出力します。Imagen 4.0の高品質なレイアウト能力を活用しています。
+*   **視覚解析:** `OpenAI GPT-4o Vision`
+    *   アップロードされた画像を分析し、詳細なビジュアル説明を日本語で生成します。
+*   **プロンプト最適化（Refinement）:** `OpenAI GPT-4o`
+    *   解析結果とユーザーの指示を統合し、Imagenが最も理解しやすく、かつ「日本語として完璧な」カード内容（異名、能力文など）を考案します。
+*   **最終画像生成:** `Google Imagen 4.0`
+    *   最適化されたプロンプトを受け取り、1枚の完成された縦長トレーディングカードを描き出します。
 
 ---
 
 ## 2. 画像生成のステップ
 
-### ステップ1：画像のリサイズと最適化（フロントエンド）
-ブラウザ側で画像を軽量なJPEG形式に変換し、各APIの処理に適したサイズに最適化します。
+### ステップ1：画像解析（アップロード時）
+画像をアップロードすると即座にGPT-4oが分析を開始し、コンソールに「画像解析結果」を出力します。
 
-### ステップ2：高度な視覚解析（GPT-4o）
-サーバーに届いた画像データを、まずOpenAIのGPT-4oがスキャンします。
-「被写体のポーズ」「背景の雰囲気」「色のコントラスト」などの視覚情報を言語化し、Imagenが最高のパフォーマンスを発揮できるような指示書を作成します。
+### ステップ2：内容のブラッシュアップ（生成ボタンクリック時）
+「AIで画像を生成する」ボタンを押すと、以下の処理が走ります。
+- 「ドラフト指示書」が作成されます。
+- それをGPT-4oに再度投げ、**「最高級のデザイナーならこの指示をどう解釈し、どんな日本語を印字するか」**を確定させます。
+- この工程により、「異名＋名前」の組み合わせがより自然でカッコイイものになります。
 
-### ステップ3：構造化プロンプトの送信
-解析結果をベースに、「プロのカードデザイナー」としての役割を与えた最終的な英語プロンプトを構築します。この際、**「カード内の文字はすべて日本語にすること」**および**「名前にカッコイイ異名を付けること」**というルールが適用されます。
-
-### ステップ4：カード全体の一括生成（Imagen 4.0）
-構築されたプロンプトをGoogle Imagen APIに渡し、アスペクト比 3:4 の縦長レイアウトでカードを生成します。AIは指示に従い、日本語でのタイトリング、属性マーク、イラスト、ステータスボックスを一括で描画します。
-
----
-
-## 3. 実際にAIに渡されるプロンプトのサンプル
-
-以下は、GPT-4oによって解析され、最終的にGoogle Imagenに渡されるプロンプトのイメージです。
-
-### GPT-4o経由での最終プロンプト例
-```text
-Role: You are a professional trading card designer.
-Objective: Create a single, high-impact trading card illustration that maximizes the characteristics of the character.
-
-IMPORTANT: ALL text displayed on the card (Card Name, Title, Ability Descriptions, etc.) MUST be written in JAPANESE only.
-
-Card Details:
-- Rarity: SR
-- Attribute: Water (Represent this visually with a graphic symbol/element)
-- Card Name Instruction: The card name is "アクア・ガーディアン". Prepend a cool, legendary title (異名) to this name in Japanese.
-- Aspect Ratio: 3:4 (Vertical layout)
-- Status Stats: Include combat statistics determined by you (ATK, HP, and COST)
-- Background: A polished background reflecting the Water attribute and SR rarity.
-
-Layout Design:
-- Top Section: Display the Water attribute symbol, the Full Japanese Card Name (Title + Name), and the rarity marker.
-- Center Section: Feature a high-quality illustration.
-- Bottom Section: A stylized text box containing ability descriptions in JAPANESE and the stats (ATK, HP, COST).
-
-Character specific details: (GPT-4oによる画像解析結果) A warrior clad in translucent azure armor, standing atop a whirlpool under a starlit ocean sky.
-
-Ensure the text is legible, the layout is balanced, and it looks like a premium physical TCG card with high-quality Japanese typography.
-```
+### ステップ3：一括画像生成（Imagen 4.0）
+ブラッシュアップされた「最終日本語プロンプト」をGoogle Imagen 4.0に送信します。AIは指定された高品質な日本語とレイアウト構成を一挙に描き出し、完成品として出力します。
 
 ---
-この「OpenAIの解析力 × Googleの描画力」のハイブリッド構成により、安定性と品質を両立したカード生成を実現しています。
+
+## 3. コンソール出力の確認
+開発者ツール（F12）のコンソールでは、以下の順序でプロセスを確認できます。
+
+1.  **--- GPT-4o 画像解析結果 ---** (アップロード時)
+2.  **--- ドラフト指示書 ---** (生成開始直後)
+3.  **--- 【最適化済】最終日本語プロンプト ---** (Imagenに渡す直前のプロンプト)
+
+---
+この「解析力 × 構成力 × 描画力」の3段構成により、従来のAI生成では難しかった「意味の通じる高品質な日本語入りカード」の安定生成を実現しています。
