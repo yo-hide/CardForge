@@ -4,13 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imagePlaceholder = document.getElementById('image-placeholder');
     const dropZone = document.getElementById('drop-zone');
     const safetyStatus = document.getElementById('safety-status');
-    const apiKeyInput = document.getElementById('api-key');
 
-    // Load API Key from localStorage
-    apiKeyInput.value = localStorage.getItem('cardforge_openai_key') || '';
-    apiKeyInput.addEventListener('change', () => {
-        localStorage.setItem('cardforge_openai_key', apiKeyInput.value);
-    });
 
     let safetyModel = null;
 
@@ -222,30 +216,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const artStyleLabel = artElement ? artElement.parentElement.querySelector('.art-label').textContent : 'Standard';
 
         const prompt = `Fantasy TCG card illustration of ${name}, ${attribute} element, ${artStyleLabel} art style, high quality, highly detailed, masterpiece.`;
-        const apiKey = apiKeyInput.value;
-
-        if (!apiKey) {
-            aiStatus.classList.add('hidden');
-            aiGenBtn.disabled = false;
-            alert(`【APIキーが必要です】\n\n画像生成を行うには、OpenAIのAPIキー（sk-...）を設定欄に入力してください。\n\n現在のプロンプト：\n"${prompt}"`);
-            return;
-        }
 
         aiStatus.classList.remove('hidden');
         aiGenBtn.disabled = true;
 
         try {
-            const response = await fetch('https://api.openai.com/v1/images/generations', {
+            const response = await fetch('/api/generate-image', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: "dall-e-3",
-                    prompt: prompt,
-                    n: 1,
-                    size: "1024x1024"
+                    prompt: prompt
                 })
             });
 
