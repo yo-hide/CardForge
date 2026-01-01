@@ -39,25 +39,27 @@ app.post('/api/generate-image', async (req, res) => {
 
             // Step 1: Analyze image with OpenAI GPT-4o Vision if provided
             if (image) {
-                console.log("Analyzing input image with OpenAI GPT-4o...");
+                console.log("Analyzing input image with OpenAI GPT-4o (Japanese Output)...");
                 const visionResponse = await openai.chat.completions.create({
                     model: "gpt-4o",
                     messages: [
                         {
                             role: "user",
                             content: [
-                                { type: "text", text: `Analyze this image and provide a highly detailed, artistic description that captures its composition, key subjects, colors, and atmosphere. This description will be used to generate a fantasy TCG card illustration. The core theme should be: ${prompt}` },
+                                { type: "text", text: `この画像を分析し、構成、主題、色使い、雰囲気を捉えた非常に詳細で芸術的な説明を【日本語】で作成してください。この説明はファンタジーTCGのイラスト生成に使用されます。核となるテーマは次の通りです: ${prompt}` },
                                 { type: "image_url", image_url: { url: image } }
                             ],
                         },
                     ],
                 });
                 finalPrompt = visionResponse.choices[0].message.content;
-                console.log("Enhanced Prompt from GPT-4o:", finalPrompt);
+                console.log("--- GPT-4o 画像解析結果 (Japanese) ---");
+                console.log(finalPrompt);
+                console.log("--------------------------------------");
             }
 
             // Step 2: Generate final card with Google Imagen 4.0
-            console.log("Generating card with Google Imagen 4.0...");
+            console.log("Generating card with Google Imagen 4.0 (using Japanese Prompt)...");
             const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
 
             const response = await fetch(url, {

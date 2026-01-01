@@ -106,7 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle image upload
     imageInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (file) handleFile(file);
+        if (file) {
+            handleFile(file);
+            // Reset value so the change event fires even if the same file is selected again
+            imageInput.value = '';
+        }
     });
 
     // Drag and Drop
@@ -248,31 +252,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const inputName = cardNameInput.value.trim();
         const cardNameInstruction = inputName
-            ? `The card name is "${inputName}". Prepend a cool, legendary title (異名) to this name in Japanese.`
-            : `Create a creative, legendary card name including a cool title (異名) in Japanese based on the visual/attributes.`;
+            ? `カード名は「${inputName}」です。この名前に、属性や特徴に基づいたカッコイイ伝説的な【異名】を日本語で付け加えてください。`
+            : `画像や属性に基づいた、カッコイイ【異名】を含む伝説的なカード名を日本語でゼロから考案してください。`;
 
-        // Construct a structured prompt for the ENTIRE card in English
-        const prompt = `Role: You are a professional trading card designer.
-Objective: Create a single, high-impact trading card illustration that maximizes the characteristics of the character.
+        // 全体のプロンプトを日本語で構築
+        const prompt = `役割: あなたはプロのトレーディングカードデザイナーです。
+目的: キャラクターの特徴（画像または下記の説明）を最大限に引き出した、高品質なトレーディングカードを1枚作成してください。
 
-IMPORTANT: ALL text displayed on the card (Card Name, Title, Ability Descriptions, etc.) MUST be written in JAPANESE only.
+重要ルール: カード内に表示されるすべてのテキスト（カード名、異名、能力説明など）は、必ず【日本語のみ】で記述してください。
 
-Card Details:
-- Rarity: ${rarity}
-- Attribute: ${attribute} (Represent this visually with a graphic symbol/element)
-- Card Name Instruction: ${cardNameInstruction}
-- Aspect Ratio: 1:1.4 (Vertical layout)
-- Status Stats: Include combat statistics determined by you (ATK, HP, and COST)
-- Background: A polished background reflecting the ${attribute} attribute and ${rarity} rarity.
+カードの詳細設定:
+- レアリティ: ${rarity}
+- 属性: ${attribute}（グラフィカルなシンボルまたはエレメントとして視覚的に表現すること）
+- カード名の指示: ${cardNameInstruction}
+- アスペクト比: 1:1.4（縦長レイアウト）
+- ステータス: あなたが考案したゲームバランスに基づく数値（ATK、HP、COST）を含めてください
+- 背景: ${attribute}の属性と${rarity}のレアリティにふさわしい、洗練された背景
 
-Layout Design:
-- Top Section: Display the ${attribute} attribute symbol, the Full Japanese Card Name (Title + Name), and the rarity marker.
-- Center Section: Feature a high-quality ${artStyleLabel} illustration.
-- Bottom Section: A stylized text box containing ability descriptions in JAPANESE and the stats (ATK, HP, COST).
+レイアウト構成:
+- 上部エリア: 属性シンボル、日本語のフルカード名（【異名】＋名前）、レアリティマークを配置。
+- 中央エリア: キャラクターの高品質な${artStyleLabel}イラストを大きく配置。
+- 下部エリア: 日本語で書かれた能力テキストボックスと、ステータス数値（ATK、HP、COST）をスタイリッシュに配置。
 
-Character specific details: ${charSpecifics || "A powerful fantasy creature"}
+キャラクターの詳細設定: ${charSpecifics || "強力なファンタジーの存在"}
 
-Ensure the text is legible, the layout is balanced, and it looks like a premium physical TCG card with high-quality Japanese typography.`;
+文字の読みやすさ、レイアウトのバランスに配慮し、最高級の物理TCGカードのような質感と日本語タイポグラフィで仕上げてください。`;
+
+        console.log("--- 送信される最終プロンプト (Japanese) ---");
+        console.log(prompt);
+        console.log("---------------------------------------");
 
         const currentImage = previewImage.src.startsWith('data:') ? previewImage.src : null;
 
@@ -327,6 +335,8 @@ Ensure the text is legible, the layout is balanced, and it looks like a premium 
             cardPreview.classList.remove('full-ai-card');
             console.log("Exited Full AI Mode due to manual change.");
         }
+        // Hide Step 4 because the current state is no longer a 'completed' AI card
+        document.getElementById('step-4').classList.add('hidden');
     }
 
     [imageInput, dropZone, cardNameInput, charDescInput, ...rarityInputs, ...attributeInputs, ...artstyleInputs].forEach(el => {
