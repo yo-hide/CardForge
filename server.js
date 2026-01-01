@@ -12,98 +12,94 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, './')));
 
-// Proxy endpoint for Google Imagen 3 image generation
+const OpenAI = require('openai');
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+
+// AI Provider Switch: 'google' or 'openai'
+const AI_PROVIDER = 'openai';
+
 app.post('/api/generate-image', async (req, res) => {
-    // Log body size for debugging
     const bodySize = JSON.stringify(req.body).length;
     console.log(`Request body size: ${(bodySize / 1024 / 1024).toFixed(2)} MB`);
 
     const { prompt, image } = req.body;
-    const apiKey = process.env.GOOGLE_API_KEY;
 
-    if (!apiKey) {
-        return res.status(500).json({ error: 'Google API key is not configured on the server.' });
-    }
+    if (AI_PROVIDER === 'google') {
+        const apiKey = process.env.GOOGLE_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Google API key is not configured.' });
 
-    try {
-        // Using Google AI Studio (Gemini API) Imagen 4.0 endpoint
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            const instance = { prompt: prompt };
 
-        const instance = { prompt: prompt };
+            // Note: Google image-to-image is currently disabled due to model constraints
 
-        // If an image is provided, include it in the instance for image-to-image
-        if (image && image.includes('base64,')) {
-            const base64Data = image.split('base64,').pop();
-            instance.image = {
-                bytesBase64Encoded: base64Data
-            };
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    instances: [instance],
+                    parameters: { sampleCount: 1, aspectRatio: "1:1" }
+                })
+            });
+
+            const data = await response.json();
+            if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+            if (data.predictions && data.predictions[0]) {
+                const base64Data = data.predictions[0].bytesBase64Encoded;
+                const mimeType = data.predictions[0].mimeType || 'image/png';
+                return res.json({ data: [{ url: `data:${mimeType};base64,${base64Data}` }] });
+            }
+            throw new Error('No image data received from Google.');
+        } catch (error) {
+            console.error('Google Proxy Error:', error);
+            return res.status(500).json({ error: error.message });
         }
+    } else if (AI_PROVIDER === 'openai') {
+        if (!process.env.OPENAI_API_KEY) return res.status(500).json({ error: 'OpenAI API key is not configured.' });
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                instances: [instance],
-                parameters: {
-                    sampleCount: 1,
-                    aspectRatio: "1:1"
-                }
-            })
-        });
+        try {
+            // Using GPT-4o for image-to-image (DALL-E 3 doesn't support image input directly, but we use GPT-4o to describe and generate)
+            // Or use DALL-E 2/3 for text-to-image. For TRUE image-to-image, some use Vision + DALL-E.
+            // Since DALL-E 3 is superior, we'll use DALL-E 3 with a descriptive prompt if image exists.
 
-        const data = await response.json();
-
-        // Log the full API response for debugging
-        console.log('Google API Response:', JSON.stringify(data, null, 2));
-
-        if (data.error) {
-            const errorMessage = data.error.message || (typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
-            console.error('Google API Error:', errorMessage);
-
-            // If model not found, try to list available models to console for debugging
-            if (response.status === 404 || errorMessage.includes('not found')) {
-                try {
-                    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
-                    const listRes = await fetch(listUrl);
-                    const listData = await listRes.json();
-                    console.log('--- Available Models ---');
-                    if (listData.models) {
-                        listData.models.forEach(m => console.log(`- ${m.name} (methods: ${m.supportedGenerationMethods})`));
-                    } else {
-                        console.log('Could not retrieve model list:', JSON.stringify(listData));
-                    }
-                    console.log('-------------------------');
-                } catch (listErr) {
-                    console.error('Failed to list models:', listErr);
-                }
+            let finalPrompt = prompt;
+            if (image) {
+                console.log("Analyzing input image with GPT-4o to guide DALL-E 3...");
+                const visionResponse = await openai.chat.completions.create({
+                    model: "gpt-4o",
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                { type: "text", text: `Analyze this image and provide a highly detailed, artistic description that captures its composition, key subjects, colors, and atmosphere. This description will be used to generate a fantasy TCG card illustration. The core theme should be: ${prompt}` },
+                                { type: "image_url", image_url: { url: image } }
+                            ],
+                        },
+                    ],
+                });
+                finalPrompt = visionResponse.choices[0].message.content;
+                console.log("Enhanced Prompt from Vision:", finalPrompt);
             }
 
-            throw new Error(`Google API Error: ${errorMessage}`);
-        }
-
-        // Google returns base64 in predictions[0].bytesBase64Encoded
-        if (data.predictions && data.predictions[0]) {
-            const base64Data = data.predictions[0].bytesBase64Encoded;
-            const mimeType = data.predictions[0].mimeType || 'image/png';
-
-            // Return in a format compatible with our frontend logic or just base64
-            // Our current frontend expects: { data: [{ url: "..." }] } (OpenAI style)
-            // We can convert base64 to a Data URL for the frontend
-            const dataUrl = `data:${mimeType};base64,${base64Data}`;
-
-            res.json({
-                data: [
-                    { url: dataUrl }
-                ]
+            const response = await openai.images.generate({
+                model: "dall-e-3",
+                prompt: finalPrompt,
+                n: 1,
+                size: "1024x1024",
+                response_format: "b64_json"
             });
-        } else {
-            res.status(500).json({ error: 'No image data received from Google API.' });
+
+            const base64Data = response.data[0].b64_json;
+            return res.json({ data: [{ url: `data:image/png;base64,${base64Data}` }] });
+        } catch (error) {
+            console.error('OpenAI Proxy Error:', error);
+            return res.status(500).json({ error: error.message });
         }
-    } catch (error) {
-        console.error('Proxy Error:', error);
-        res.status(500).json({ error: error.message || 'Failed to generate image due to server error.' });
     }
 });
 
