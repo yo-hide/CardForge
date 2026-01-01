@@ -178,15 +178,19 @@ document.addEventListener('DOMContentLoaded', () => {
             previewImage.classList.add('hidden');
             imagePlaceholder.classList.remove('hidden');
 
-            console.log("Base image ready. Starting analysis...");
+            // Get current settings for context
+            const attrElement = document.querySelector('input[name="card-attribute"]:checked');
+            const attribute = attrElement ? attrElement.parentElement.querySelector('.attr-label').textContent : 'Neutral';
+            const rarity = document.querySelector('input[name="card-rarity"]:checked')?.value || 'C';
+
+            const analysisPrompt = `この画像を分析し、構成、主題、色使い、雰囲気を捉えた非常に詳細で芸術的な説明を【日本語】で作成してください。この説明はファンタジーTCGのイラスト生成に使用されます。想定されるカード設定は以下の通りです: 属性: ${attribute}, レアリティ: ${rarity}`;
+
+            console.log("--- GPT-4o 画像解析用プロンプト ---");
+            console.log(analysisPrompt);
+            console.log("-----------------------------------");
 
             // Trigger image analysis immediately on upload
             try {
-                // Get current settings for context
-                const attrElement = document.querySelector('input[name="card-attribute"]:checked');
-                const attribute = attrElement ? attrElement.parentElement.querySelector('.attr-label').textContent : 'Neutral';
-                const rarity = document.querySelector('input[name="card-rarity"]:checked')?.value || 'C';
-
                 const response = await fetch('/api/analyze-image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
