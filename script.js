@@ -246,28 +246,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const artElement = document.querySelector('input[name="card-artstyle"]:checked');
         const artStyleLabel = artElement ? artElement.parentElement.querySelector('.art-label').textContent : 'Standard';
 
-        const cardName = cardNameInput.value.trim() || "[Auto-generate a creative name based on the visual]";
+        const inputName = cardNameInput.value.trim();
+        const cardNameInstruction = inputName
+            ? `The card name is "${inputName}". Prepend a cool, legendary title (異名) to this name in Japanese.`
+            : `Create a creative, legendary card name including a cool title (異名) in Japanese based on the visual/attributes.`;
 
         // Construct a structured prompt for the ENTIRE card in English
         const prompt = `Role: You are a professional trading card designer.
-Objective: Create a single, high-impact trading card illustration that maximizes the characteristics of the character (from image or description below).
+Objective: Create a single, high-impact trading card illustration that maximizes the characteristics of the character.
+
+IMPORTANT: ALL text displayed on the card (Card Name, Title, Ability Descriptions, etc.) MUST be written in JAPANESE only.
 
 Card Details:
 - Rarity: ${rarity}
 - Attribute: ${attribute} (Represent this visually with a graphic symbol/element)
-- Card Name: ${cardName}
+- Card Name Instruction: ${cardNameInstruction}
 - Aspect Ratio: 1:1.4 (Vertical layout)
 - Status Stats: Include combat statistics determined by you (ATK, HP, and COST)
 - Background: A polished background reflecting the ${attribute} attribute and ${rarity} rarity.
 
 Layout Design:
-- Top Section: Display the ${attribute} attribute symbol, the card name, and the rarity marker.
-- Center Section: Feature a high-quality ${artStyleLabel} illustration of the character.
-- Bottom Section: A stylized text box containing ability descriptions and the stats (ATK, HP, COST).
+- Top Section: Display the ${attribute} attribute symbol, the Full Japanese Card Name (Title + Name), and the rarity marker.
+- Center Section: Feature a high-quality ${artStyleLabel} illustration.
+- Bottom Section: A stylized text box containing ability descriptions in JAPANESE and the stats (ATK, HP, COST).
 
 Character specific details: ${charSpecifics || "A powerful fantasy creature"}
 
-Ensure the text is legible, the layout is balanced, and it looks like a premium physical TCG card.`;
+Ensure the text is legible, the layout is balanced, and it looks like a premium physical TCG card with high-quality Japanese typography.`;
 
         const currentImage = previewImage.src.startsWith('data:') ? previewImage.src : null;
 

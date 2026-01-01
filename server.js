@@ -37,29 +37,27 @@ app.post('/api/generate-image', async (req, res) => {
         try {
             let finalPrompt = prompt;
 
-            // Step 1: Analyze image with Gemini if provided
+            // Step 1: Analyze image with OpenAI GPT-4o Vision if provided
             if (image) {
-                console.log("Analyzing input image with Gemini 1.5 Flash...");
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-                // Remove the data:image/png;base64, part if present
-                const base64Image = image.split(',')[1] || image;
-
-                const result = await model.generateContent([
-                    `Analyze this image and provide a highly detailed, artistic description that captures its composition, key subjects, colors, and atmosphere. This description will be used to generate a fantasy TCG card illustration. The core theme should be: ${prompt}`,
-                    {
-                        inlineData: {
-                            data: base64Image,
-                            mimeType: "image/jpeg" // Usually resized to JPEG in frontend
+                console.log("Analyzing input image with OpenAI GPT-4o...");
+                const visionResponse = await openai.chat.completions.create({
+                    model: "gpt-4o",
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                { type: "text", text: `Analyze this image and provide a highly detailed, artistic description that captures its composition, key subjects, colors, and atmosphere. This description will be used to generate a fantasy TCG card illustration. The core theme should be: ${prompt}` },
+                                { type: "image_url", image_url: { url: image } }
+                            ],
                         },
-                    },
-                ]);
-                finalPrompt = result.response.text();
-                console.log("Enhanced Prompt from Gemini:", finalPrompt);
+                    ],
+                });
+                finalPrompt = visionResponse.choices[0].message.content;
+                console.log("Enhanced Prompt from GPT-4o:", finalPrompt);
             }
 
-            // Step 2: Generate final card with Imagen
-            console.log("Generating card with Imagen 4.0...");
+            // Step 2: Generate final card with Google Imagen 4.0
+            console.log("Generating card with Google Imagen 4.0...");
             const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
 
             const response = await fetch(url, {
@@ -69,7 +67,7 @@ app.post('/api/generate-image', async (req, res) => {
                     instances: [{ prompt: finalPrompt }],
                     parameters: {
                         sampleCount: 1,
-                        aspectRatio: "3:4" // Best vertical option for Imagen
+                        aspectRatio: "3:4"
                     }
                 })
             });
