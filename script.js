@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     initSafetyModel();
 
-    const nameInput = document.getElementById('card-name');
     const atkInput = document.getElementById('card-atk');
     const defInput = document.getElementById('card-def');
     const templateInputs = document.querySelectorAll('input[name="design-template"]');
@@ -40,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     cardPreview.classList.add('rarity-C');
     cardPreview.classList.add('attr-fire');
     cardPreview.classList.add('artstyle-photo');
+
+    // Initial generation
+    updateAICardData();
 
     // Handle Template Changes
     templateInputs.forEach(input => {
@@ -87,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             // Add new attribute class
             cardPreview.classList.add(`attr-${val}`);
-            updateAIDescription();
+            updateAICardData();
         });
     });
 
@@ -103,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             // Add new artstyle class
             cardPreview.classList.add(`artstyle-${val}`);
+            updateAICardData();
         });
     });
 
@@ -172,28 +175,47 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     }
 
-    // Real-time synchronization
-    nameInput.addEventListener('input', () => {
-        previewTitle.textContent = nameInput.value || 'CARD NAME';
-        updateAIDescription();
-    });
-
-    function updateAIDescription() {
-        const name = nameInput.value || 'This creature';
+    // AI Data Generation (Name & Description)
+    function updateAICardData() {
         const attrElement = document.querySelector('input[name="card-attribute"]:checked');
-        const attribute = attrElement ? attrElement.parentElement.querySelector('.attr-label').textContent : 'Neutral';
+        const artElement = document.querySelector('input[name="card-artstyle"]:checked');
 
-        const templates = [
-            `A legendary manifestation of ${attribute}, known throughout history as "${name}".`,
-            `The power of ${attribute} flows through ${name}, granting it unmatched strength.`,
-            `Wherever ${name} appears, the air thickens with the essence of ${attribute}.`,
-            `Forged in the heart of ${attribute}, ${name} stands as a testament to pure power.`,
-            `An ancient guardian bound to the element of ${attribute}, ${name} awaits its next master.`
+        const attrVal = attrElement ? attrElement.value : 'fire';
+        const artVal = artElement ? artElement.value : 'photo';
+        const attributeLabel = attrElement ? attrElement.parentElement.querySelector('.attr-label').textContent : 'Neutral';
+
+        // 1. Name Generation Logic
+        const nameMap = {
+            fire: ["Phoenix", "Dragon", "Efreet", "Blaze Knight", "Volcanic Golem"],
+            water: ["Leviathan", "Kraken", "Siren", "Tidal Serpent", "Aqua Spirit"],
+            thunder: ["Raiju", "Cloud Gigantic", "Volt Falcon", "Storm Weaver", "Spark Sprite"],
+            earth: ["Behemoth", "Terra Titan", "Gem Dragon", "Iron Boar", "Stone Guard"],
+            nature: ["Dryad", "Forest King", "Ancient Treant", "Ivy Stalker", "Leaf Fairy"],
+            snow: ["Yeti", "Ice Queen", "Frost Wyrm", "Snow Wolf", "Crystal Golem"],
+            flower: ["Flora Muse", "Rose Valkyrie", "Petal Dancer", "Cherry Blossom Spirit", "Thorn Archer"],
+            dark: ["Vampire Lord", "Shadow Demon", "Reaper", "Nightmare Stallion", "Void Terror"],
+            light: ["Archangel", "Holy Knight", "Solar Griffin", "Saintess", "Divine Orb"]
+        };
+
+        // Pick name based on art style index for variety
+        const artStyles = ["photo", "classic-anime", "modern-anime", "sd", "manga", "watercolor", "pop", "gothic"];
+        const nameIdx = Math.max(0, artStyles.indexOf(artVal)) % nameMap[attrVal].length;
+        const generatedName = nameMap[attrVal][nameIdx];
+
+        previewTitle.textContent = generatedName;
+
+        // 2. Description Generation Logic
+        const descTemplates = [
+            `A legendary manifestation of ${attributeLabel}, known throughout history as the "${generatedName}".`,
+            `The power of ${attributeLabel} flows through ${generatedName}, granting it unmatched strength.`,
+            `Wherever the ${generatedName} appears, the air thickens with the pure essence of ${attributeLabel}.`,
+            `Forged in the heart of ${attributeLabel}, this ${generatedName} stands as a testament to power.`,
+            `An ancient guardian bound to local ${attributeLabel} ley lines, ${generatedName} awaits a new master.`
         ];
 
-        // Pseudo-random but consistent based on name length
-        const index = name.length % templates.length;
-        previewDesc.textContent = templates[index];
+        // Pick description based on rarity for more flavor later, currently using simple index
+        const descIdx = Math.abs(generatedName.length) % descTemplates.length;
+        previewDesc.textContent = descTemplates[descIdx];
     }
 
     atkInput.addEventListener('input', () => {
@@ -217,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
             logging: false
         }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `${nameInput.value || 'card'}.png`;
+            link.download = `cardforge_card.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
         });

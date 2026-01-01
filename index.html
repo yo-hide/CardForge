@@ -126,81 +126,82 @@
                     </div>
 
                     <div class="control-group">
-                        <label for="card-name">カード名</label>
-                        <input type="text" id="card-name" placeholder="例: 伝説の龍" maxlength="20">
-                    </div>
-
-                    <div class="control-group">
                         <label>レアリティ</label>
                         <div class="rarity-grid"></div>
-                            <label class="rarity-option"><input type="radio" name="card-rarity" value="C" checked><span>C</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity" value="U"><span>U</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity" value="R"><span>R</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity" value="SR"><span>SR</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity" value="RR"><span>RR</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity" value="UR"><span>UR</span></label>
-                        </div>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="control-group">
-                            <label for="card-atk">ATK</label>
-                            <input type="number" id="card-atk" placeholder="3000">
-                        </div>
-                        <div class="control-group">
-                            <label for="card-def">DEF</label>
-                            <input type="number" id="card-def" placeholder="2500">
-                        </div>
-                    </div>
-
-                        <button id="download-btn" class="btn-secondary">カードを保存する</button>
-
-                        <div id="safety-status" class="safety-status hidden">
-                            <span class="loader"></span>
-                            <span class="status-text">画像をスキャン中...</span>
-                        </div>
-                    </div>
-            </section>
-
-            <section class="preview-section">
-                <div class="card-container">
-                    <div class="tcg-card" id="card-preview">
-                        <div class="card-inner">
-                            <div class="card-header">
-                                <span class="card-title-text" id="preview-title">CARD NAME</span>
-                                <div class="card-attribute" id="preview-attribute">炎</div>
-                            </div>
-
-                            <div class="card-image-box">
-                                <img src="" id="preview-image" alt="uploaded artwork" class="hidden">
-                                <div class="image-placeholder" id="image-placeholder">
-                                    <span>イメージがここに表示されます</span>
-                                </div>
-                            </div>
-
-                            <div class="card-content-box">
-                                <div class="card-description-text" id="preview-description">
-                                    ここにカードの説明文が表示されます。テキストが長くなる場合は自動的に調整されます。
-                                </div>
-                                <div class="card-stats">
-                                    ATK / <span id="preview-atk">0</span> DEF / <span id="preview-def">0</span>
-                                </div>
-                                <div class="card-rarity-badge" id="preview-rarity">C</div>
-                            </div>
-                        </div>
+                        <label class="rarity-option"><input type="radio" name="card-rarity" value="C"
+                                checked><span>C</span></label>
+                        <label class="rarity-option"><input type="radio" name="card-rarity"
+                                value="U"><span>U</span></label>
+                        <label class="rarity-option"><input type="radio" name="card-rarity"
+                                value="R"><span>R</span></label>
+                        <label class="rarity-option"><input type="radio" name="card-rarity"
+                                value="SR"><span>SR</span></label>
+                        <label class="rarity-option"><input type="radio" name="card-rarity"
+                                value="RR"><span>RR</span></label>
+                        <label class="rarity-option"><input type="radio" name="card-rarity"
+                                value="UR"><span>UR</span></label>
                     </div>
                 </div>
-            </section>
-        </main>
 
-        <footer>
-            <div class="guidelines-container glass-panel">
-                <h3>⚠️ 画像アップロードに関する注意事項</h3>
-                <p>本ツールでは、公序良俗に反する画像、暴力的な表現、および性的コンテンツを含む画像のアップロードを固く禁じています。</p>
-                <p>アップロードされた画像は自動的にスキャンされ、不適切と判断された場合はカードの生成および保存が停止されます。健全なコミュニティ維持のため、ご理解とご協力をお願いいたします。</p>
+                <div class="stats-grid">
+                    <div class="control-group">
+                        <label for="card-atk">ATK</label>
+                        <input type="number" id="card-atk" placeholder="3000">
+                    </div>
+                    <div class="control-group">
+                        <label for="card-def">DEF</label>
+                        <input type="number" id="card-def" placeholder="2500">
+                    </div>
+                </div>
+
+                <button id="download-btn" class="btn-secondary">カードを保存する</button>
+
+                <div id="safety-status" class="safety-status hidden">
+                    <span class="loader"></span>
+                    <span class="status-text">画像をスキャン中...</span>
+                </div>
+    </div>
+    </section>
+
+    <section class="preview-section">
+        <div class="card-container">
+            <div class="tcg-card" id="card-preview">
+                <div class="card-inner">
+                    <div class="card-header">
+                        <span class="card-title-text" id="preview-title">CARD NAME</span>
+                        <div class="card-attribute" id="preview-attribute">炎</div>
+                    </div>
+
+                    <div class="card-image-box">
+                        <img src="" id="preview-image" alt="uploaded artwork" class="hidden">
+                        <div class="image-placeholder" id="image-placeholder">
+                            <span>イメージがここに表示されます</span>
+                        </div>
+                    </div>
+
+                    <div class="card-content-box">
+                        <div class="card-description-text" id="preview-description">
+                            ここにカードの説明文が表示されます。テキストが長くなる場合は自動的に調整されます。
+                        </div>
+                        <div class="card-stats">
+                            ATK / <span id="preview-atk">0</span> DEF / <span id="preview-def">0</span>
+                        </div>
+                        <div class="card-rarity-badge" id="preview-rarity">C</div>
+                    </div>
+                </div>
             </div>
-            <p>&copy; 2026 CardForge - Advanced Card Generation Engine</p>
-        </footer>
+        </div>
+    </section>
+    </main>
+
+    <footer>
+        <div class="guidelines-container glass-panel">
+            <h3>⚠️ 画像アップロードに関する注意事項</h3>
+            <p>本ツールでは、公序良俗に反する画像、暴力的な表現、および性的コンテンツを含む画像のアップロードを固く禁じています。</p>
+            <p>アップロードされた画像は自動的にスキャンされ、不適切と判断された場合はカードの生成および保存が停止されます。健全なコミュニティ維持のため、ご理解とご協力をお願いいたします。</p>
+        </div>
+        <p>&copy; 2026 CardForge - Advanced Card Generation Engine</p>
+    </footer>
     </div>
 
     <script src="script.js"></script>
