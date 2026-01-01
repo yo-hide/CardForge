@@ -11,27 +11,31 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, './')));
 
-// Proxy endpoint for OpenAI image generation
+// Proxy endpoint for Google Imagen 3 image generation
 app.post('/api/generate-image', async (req, res) => {
     const { prompt } = req.body;
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
-        return res.status(500).json({ error: 'API key is not configured on the server.' });
+        return res.status(500).json({ error: 'Google API key is not configured on the server.' });
     }
 
     try {
-        const response = await fetch('https://api.openai.com/v1/images/generations', {
+        // Using Google AI Studio (Gemini API) Imagen 3 endpoint
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "dall-e-3",
-                prompt: prompt,
-                n: 1,
-                size: "1024x1024"
+                instances: [
+                    { prompt: prompt }
+                ],
+                parameters: {
+                    sampleCount: 1
+                }
             })
         });
 
@@ -41,7 +45,24 @@ app.post('/api/generate-image', async (req, res) => {
             return res.status(response.status).json({ error: data.error.message });
         }
 
-        res.json(data);
+        // Google returns base64 in predictions[0].bytesBase64Encoded
+        if (data.predictions && data.predictions[0]) {
+            const base64Data = data.predictions[0].bytesBase64Encoded;
+            const mimeType = data.predictions[0].mimeType || 'image/png';
+
+            // Return in a format compatible with our frontend logic or just base64
+            // Our current frontend expects: { data: [{ url: "..." }] } (OpenAI style)
+            // We can convert base64 to a Data URL for the frontend
+            const dataUrl = `data:${mimeType};base64,${base64Data}`;
+
+            res.json({
+                data: [
+                    { url: dataUrl }
+                ]
+            });
+        } else {
+            res.status(500).json({ error: 'No image data received from Google API.' });
+        }
     } catch (error) {
         console.error('Proxy Error:', error);
         res.status(500).json({ error: 'Failed to generate image due to server error.' });
