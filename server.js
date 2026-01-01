@@ -36,7 +36,7 @@ app.post('/api/analyze-image', async (req, res) => {
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: `この画像を分析し、構成、主題、色使い、雰囲気を捉えた非常に詳細で芸術的な説明を【日本語】で作成してください。この説明はファンタジーTCGのイラスト生成に使用されます。想定されるカード設定は以下の通りです: ${context}` },
+                        { type: "text", text: `この画像を分析し、特徴、構成、色使い、雰囲気を捉えた非常に詳細で芸術的な説明を【日本語】で作成してください。` },
                         { type: "image_url", image_url: { url: image } }
                     ],
                 },
@@ -87,8 +87,7 @@ app.post('/api/generate-image', async (req, res) => {
                 const base64Data = data.predictions[0].bytesBase64Encoded;
                 const mimeType = data.predictions[0].mimeType || 'image/png';
                 return res.json({
-                    data: [{ url: `data:${mimeType};base64,${base64Data}` }],
-                    analysis: finalPrompt
+                    data: [{ url: `data:${mimeType};base64,${base64Data}` }]
                 });
             }
             throw new Error('No image data received from Google.');
