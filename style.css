@@ -640,6 +640,26 @@ header {
     border: none;
 }
 
+/* Full AI Generated Card Mode */
+.tcg-card.full-ai-card {
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    background: transparent;
+}
+
+.tcg-card.full-ai-card .card-inner>*:not(.card-image-box) {
+    display: none;
+}
+
+.tcg-card.full-ai-card .card-image-box {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border: none;
+}
+
+
 .tcg-card.theme-onepiece {
     background: #004d40;
     border: 6px solid #ffca28;

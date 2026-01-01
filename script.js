@@ -232,12 +232,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     aiGenBtn.addEventListener('click', async () => {
         const name = previewTitle.textContent;
+        const rarity = previewRarity.textContent;
+        const atk = previewAtk.textContent;
+        const def = previewDef.textContent;
+        const desc = previewDesc.textContent;
+
         const attrElement = document.querySelector('input[name="card-attribute"]:checked');
         const attribute = attrElement ? attrElement.parentElement.querySelector('.attr-label').textContent : 'Neutral';
         const artElement = document.querySelector('input[name="card-artstyle"]:checked');
         const artStyleLabel = artElement ? artElement.parentElement.querySelector('.art-label').textContent : 'Standard';
+        const templateElement = document.querySelector('input[name="design-template"]:checked');
+        const templateLabel = templateElement ? templateElement.parentElement.querySelector('.template-label').textContent : 'Yu-Gi-Oh style';
 
-        const prompt = `Fantasy TCG card illustration of ${name}, ${attribute} element, ${artStyleLabel} art style, high quality, highly detailed, masterpiece.`;
+        // Construct a prompt for the ENTIRE card
+        const prompt = `A professional, high-quality, complete TCG/CCG trading card design for "${name}". 
+The card must feature:
+1. A sophisticated decorative frame in the style of "${templateLabel}".
+2. A prominent title area at the top displaying the name "${name}".
+3. A clear attribute symbol for "${attribute}".
+4. A central high-quality ${artStyleLabel} illustration of ${name}.
+5. A lower text box containing the description: "${desc}".
+6. Numbers for stats: "ATK ${atk} / DEF ${def}".
+7. A visible rarity marker "${rarity}".
+The overall layout should be clean, balanced, and cinematic, resembling a premium physical card game.`;
+
         const currentImage = previewImage.src.startsWith('data:') ? previewImage.src : null;
 
         aiStatus.classList.remove('hidden');
@@ -264,6 +282,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const imageUrl = data.data[0].url;
 
+            // Switch to Full AI Card mode
+            cardPreview.classList.add('full-ai-card');
+
             // Apply the generated image to preview
             previewImage.src = imageUrl;
             previewImage.classList.remove('hidden');
@@ -272,8 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show the preview section
             document.getElementById('step-4').classList.remove('hidden');
 
-            // Success feedback
-            console.log("Successfully generated image:", imageUrl);
+            console.log("Successfully generated FULL card image:", imageUrl);
         } catch (error) {
             console.error("AI Generation Error:", error);
             alert(`【生成エラー】\n${error.message}`);
@@ -282,6 +302,20 @@ document.addEventListener('DOMContentLoaded', () => {
             aiGenBtn.disabled = false;
         }
     });
+
+    // Helper to exit full AI mode if manual changes occur
+    function exitFullAIMode() {
+        if (cardPreview.classList.contains('full-ai-card')) {
+            cardPreview.classList.remove('full-ai-card');
+            console.log("Exited Full AI Mode due to manual change.");
+        }
+    }
+
+    [imageInput, dropZone, ...templateInputs, ...rarityInputs, ...attributeInputs, ...artstyleInputs].forEach(el => {
+        el.addEventListener('change', exitFullAIMode);
+        el.addEventListener('drop', exitFullAIMode);
+    });
+
 
     // Download functionality
     const downloadBtn = document.getElementById('download-btn');
