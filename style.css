@@ -316,6 +316,22 @@ main {
     transition: border-color 0.3s;
 }
 
+.api-key-group {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.api-input {
+    border: 1px dashed rgba(217, 70, 239, 0.5) !important;
+}
+
+.api-help {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
 .control-group input:focus,
 .control-group textarea:focus {
     border-color: var(--primary);

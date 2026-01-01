@@ -4,6 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const imagePlaceholder = document.getElementById('image-placeholder');
     const dropZone = document.getElementById('drop-zone');
     const safetyStatus = document.getElementById('safety-status');
+    const apiKeyInput = document.getElementById('api-key');
+
+    // Load API Key from localStorage
+    apiKeyInput.value = localStorage.getItem('cardforge_openai_key') || '';
+    apiKeyInput.addEventListener('change', () => {
+        localStorage.setItem('cardforge_openai_key', apiKeyInput.value);
+    });
 
     let safetyModel = null;
 
@@ -215,14 +222,55 @@ document.addEventListener('DOMContentLoaded', () => {
         const artStyleLabel = artElement ? artElement.parentElement.querySelector('.art-label').textContent : 'Standard';
 
         const prompt = `Fantasy TCG card illustration of ${name}, ${attribute} element, ${artStyleLabel} art style, high quality, highly detailed, masterpiece.`;
+        const apiKey = apiKeyInput.value;
+
+        if (!apiKey) {
+            aiStatus.classList.add('hidden');
+            aiGenBtn.disabled = false;
+            alert(`【APIキーが必要です】\n\n画像生成を行うには、OpenAIのAPIキー（sk-...）を設定欄に入力してください。\n\n現在のプロンプト：\n"${prompt}"`);
+            return;
+        }
+
         aiStatus.classList.remove('hidden');
         aiGenBtn.disabled = true;
 
-        setTimeout(() => {
+        try {
+            const response = await fetch('https://api.openai.com/v1/images/generations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "dall-e-3",
+                    prompt: prompt,
+                    n: 1,
+                    size: "1024x1024"
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error.message);
+            }
+
+            const imageUrl = data.data[0].url;
+
+            // Apply the generated image to preview
+            previewImage.src = imageUrl;
+            previewImage.classList.remove('hidden');
+            imagePlaceholder.classList.add('hidden');
+
+            // Success feedback
+            console.log("Successfully generated image:", imageUrl);
+        } catch (error) {
+            console.error("AI Generation Error:", error);
+            alert(`【生成エラー】\n${error.message}`);
+        } finally {
             aiStatus.classList.add('hidden');
             aiGenBtn.disabled = false;
-            alert(`【AI画像生成シミュレーション】\n\n以下のプロンプトが作成されました：\n"${prompt}"\n\n※実際の画像生成には外部APIキーが必要です。現在はプロンプト作成までをシミュレートしています。`);
-        }, 3000);
+        }
     });
 
     // Download functionality
