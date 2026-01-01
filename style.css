@@ -170,6 +170,74 @@ main {
     background: var(--primary-hover);
 }
 
+.upload-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.upload-buttons button {
+    flex: 1;
+    margin-top: 0;
+}
+
+.btn-ai-gen {
+    background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.btn-ai-gen:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+    filter: brightness(1.1);
+}
+
+.ai-status {
+    padding: 1.5rem;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(217, 70, 239, 0.3);
+}
+
+.ai-loader {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(217, 70, 239, 0.1);
+    border-top-color: #d946ef;
+    border-radius: 50%;
+    animation: rotation 1s linear infinite, glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 5px #d946ef;
+    }
+
+    50% {
+        box-shadow: 0 0 20px #d946ef;
+    }
+}
+
+.ai-status-text {
+    font-size: 0.9rem;
+    color: #f5d0fe;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(217, 70, 239, 0.5);
+}
+
 .btn-secondary {
     background: transparent;
     color: white;

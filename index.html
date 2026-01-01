@@ -47,9 +47,17 @@
                         <h3>画像をアップロード</h3>
                         <p>または、ここにドラッグ＆ドロップ</p>
                         <input type="file" id="image-input" accept="image/*" hidden>
-                        <button class="btn-primary"
-                            onclick="document.getElementById('image-input').click()">ファイルを選択</button>
+                        <div class="upload-buttons">
+                            <button class="btn-primary"
+                                onclick="document.getElementById('image-input').click()">ファイルを選択</button>
+                            <button id="generate-ai-img" class="btn-ai-gen">AIで画像を生成</button>
+                        </div>
                     </div>
+                </div>
+
+                <div id="ai-status" class="ai-status hidden glass-panel">
+                    <div class="ai-loader"></div>
+                    <div class="ai-status-text">AIが画像を召喚中...</div>
                 </div>
 
                 <div class="controls-panel glass-panel">
