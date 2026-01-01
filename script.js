@@ -12,11 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const defInput = document.getElementById('card-def');
     const templateInputs = document.querySelectorAll('input[name="design-template"]');
     const rarityInputs = document.querySelectorAll('input[name="card-rarity"]');
+    const attributeInputs = document.querySelectorAll('input[name="card-attribute"]');
 
     // Preview elements
     const cardPreview = document.getElementById('card-preview');
     const previewTitle = document.getElementById('preview-title');
     const previewRarity = document.getElementById('preview-rarity');
+    const previewAttribute = document.getElementById('preview-attribute');
     const previewType = document.getElementById('preview-type');
     const previewDesc = document.getElementById('preview-description');
     const previewAtk = document.getElementById('preview-atk');
@@ -25,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize theme
     cardPreview.classList.add('theme-yugioh');
     cardPreview.classList.add('rarity-C');
+    cardPreview.classList.add('attr-fire');
 
     // Handle Template Changes
     templateInputs.forEach(input => {
@@ -54,6 +57,24 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             // Add new rarity class
             cardPreview.classList.add(`rarity-${val}`);
+        });
+    });
+
+    // Handle Attribute Changes
+    attributeInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+            const val = e.target.value;
+            const label = e.target.parentElement.querySelector('.attr-label').textContent;
+            previewAttribute.textContent = label;
+
+            // Remove old attribute class
+            cardPreview.classList.forEach(className => {
+                if (className.startsWith('attr-')) {
+                    cardPreview.classList.remove(className);
+                }
+            });
+            // Add new attribute class
+            cardPreview.classList.add(`attr-${val}`);
         });
     });
 
