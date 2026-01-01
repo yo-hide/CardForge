@@ -132,6 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    let lastAnalysisResult = "";
+
     async function handleFile(file) {
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -171,12 +173,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            // Keep the processed image for API reference (hidden until AI generation)
-            previewImage.src = canvas.toDataURL('image/jpeg', 0.8);
-            previewImage.classList.add('hidden'); // Ensure it stays hidden initially
+            const processedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            previewImage.src = processedDataUrl;
+            previewImage.classList.add('hidden');
             imagePlaceholder.classList.remove('hidden');
 
-            console.log("Base image ready for AI processing.");
+            console.log("Base image ready. Starting analysis...");
+
+            // Trigger image analysis immediately on upload
+            try {
+                // Get current settings for context
+                const attrElement = document.querySelector('input[name="card-attribute"]:checked');
+                const attribute = attrElement ? attrElement.parentElement.querySelector('.attr-label').textContent : 'Neutral';
+                const rarity = document.querySelector('input[name="card-rarity"]:checked')?.value || 'C';
+
+                const response = await fetch('/api/analyze-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: processedDataUrl,
+                        context: `属性: ${attribute}, レアリティ: ${rarity}`
+                    })
+                });
+                const data = await response.json();
+                if (data.analysis) {
+                    lastAnalysisResult = data.analysis;
+                    console.log("--- GPT-4o 画像解析結果 (Japanese) ---");
+                    console.log(lastAnalysisResult);
+                    console.log("--------------------------------------");
+                }
+            } catch (err) {
+                console.error("Analysis failed:", err);
+            }
         };
         reader.readAsDataURL(file);
     }
@@ -238,11 +266,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiStatus = document.getElementById('ai-status');
 
     aiGenBtn.addEventListener('click', async () => {
-        const name = previewTitle.textContent;
         const rarity = previewRarity.textContent;
         const atk = previewAtk.textContent;
         const def = previewDef.textContent;
-        const desc = previewDesc.textContent;
         const charSpecifics = charDescInput.value;
 
         const attrElement = document.querySelector('input[name="card-attribute"]:checked');
@@ -256,8 +282,8 @@ document.addEventListener('DOMContentLoaded', () => {
             : `画像や属性に基づいた、カッコイイ【異名】を含む伝説的なカード名を日本語でゼロから考案してください。`;
 
         // 全体のプロンプトを日本語で構築
-        const prompt = `役割: あなたはプロのトレーディングカードデザイナーです。
-目的: キャラクターの特徴（画像または下記の説明）を最大限に引き出した、高品質なトレーディングカードを1枚作成してください。
+        let prompt = `役割: あなたはプロのトレーディングカードデザイナーです。
+目的: キャラクターの特徴を最大限に引き出した、高品質なトレーディングカードを1枚作成してください。
 
 重要ルール: カード内に表示されるすべてのテキスト（カード名、異名、能力説明など）は、必ず【日本語のみ】で記述してください。
 
@@ -274,11 +300,16 @@ document.addEventListener('DOMContentLoaded', () => {
 - 中央エリア: キャラクターの高品質な${artStyleLabel}イラストを大きく配置。
 - 下部エリア: 日本語で書かれた能力テキストボックスと、ステータス数値（ATK、HP、COST）をスタイリッシュに配置。
 
-キャラクターの詳細設定: ${charSpecifics || "強力なファンタジーの存在"}
+キャラクターの詳細設定: ${charSpecifics || "強力なファンタジーの存在"}`;
 
-文字の読みやすさ、レイアウトのバランスに配慮し、最高級の物理TCGカードのような質感と日本語タイポグラフィで仕上げてください。`;
+        // アップロード時に解析済みの結果があれば、それをImagenへの指示に含める
+        if (lastAnalysisResult) {
+            prompt += `\n\n【キャラクターの視覚的特徴（GPT-4oによる解析結果）】:\n${lastAnalysisResult}`;
+        }
 
-        console.log("--- 送信される最終プロンプト (Japanese) ---");
+        prompt += `\n\n文字の読みやすさ、レイアウトのバランスに配慮し、最高級の物理TCGカードのような質感と日本語タイポグラフィで仕上げてください。`;
+
+        console.log("--- 送信される最終プロンプト (Japanese / Imagen) ---");
         console.log(prompt);
         console.log("---------------------------------------");
 
@@ -295,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     prompt: prompt,
-                    image: currentImage
+                    image: currentImage // Note: In hybrid mode, Imagen uses only the prompt, but we send image just in case or for future unified vision.
                 })
             });
 
@@ -308,12 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const imageUrl = data.data[0].url;
 
-            if (data.analysis) {
-                console.log("--- GPT-4o 画像解析結果 (Japanese) ---");
-                console.log(data.analysis);
-                console.log("--------------------------------------");
-            }
-
             // Switch to Full AI Card mode
             cardPreview.classList.add('full-ai-card');
 
@@ -322,13 +347,15 @@ document.addEventListener('DOMContentLoaded', () => {
             previewImage.classList.remove('hidden');
             imagePlaceholder.classList.add('hidden');
 
-            // Show the preview section
+            // Show the next step section (Step 4)
             document.getElementById('step-4').classList.remove('hidden');
 
-            console.log("Successfully generated FULL card image:", imageUrl);
+            // Store the result for SNS title generation if needed
+            window.latestCardName = inputName || "伝説のカード";
+
         } catch (error) {
-            console.error("AI Generation Error:", error);
-            alert(`【生成エラー】\n${error.message}`);
+            console.error('AI Generation Error:', error);
+            alert('AI生成中にエラーが発生しました: ' + error.message);
         } finally {
             aiStatus.classList.add('hidden');
             aiGenBtn.disabled = false;

@@ -24,6 +24,34 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 // AI Provider Switch: 'google' or 'openai'
 const AI_PROVIDER = 'google';
 
+app.post('/api/analyze-image', async (req, res) => {
+    const { image, context } = req.body;
+    if (!image) return res.status(400).json({ error: 'No image provided.' });
+
+    try {
+        console.log("Analyzing image on upload with GPT-4o...");
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        { type: "text", text: `この画像を分析し、構成、主題、色使い、雰囲気を捉えた非常に詳細で芸術的な説明を【日本語】で作成してください。この説明はファンタジーTCGのイラスト生成に使用されます。想定されるカード設定は以下の通りです: ${context}` },
+                        { type: "image_url", image_url: { url: image } }
+                    ],
+                },
+            ],
+        });
+        const analysis = response.choices[0].message.content;
+        console.log("--- Initial Image Analysis (Japanese) ---");
+        console.log(analysis);
+        return res.json({ analysis });
+    } catch (error) {
+        console.error('Analysis Error:', error);
+        return res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/generate-image', async (req, res) => {
     const bodySize = JSON.stringify(req.body).length;
     console.log(`Request body size: ${(bodySize / 1024 / 1024).toFixed(2)} MB`);
@@ -35,38 +63,16 @@ app.post('/api/generate-image', async (req, res) => {
         if (!apiKey) return res.status(500).json({ error: 'Google API key is not configured.' });
 
         try {
-            let finalPrompt = prompt;
-
-            // Step 1: Analyze image with OpenAI GPT-4o Vision if provided
-            if (image) {
-                console.log("Analyzing input image with OpenAI GPT-4o (Japanese Output)...");
-                const visionResponse = await openai.chat.completions.create({
-                    model: "gpt-4o",
-                    messages: [
-                        {
-                            role: "user",
-                            content: [
-                                { type: "text", text: `この画像を分析し、構成、主題、色使い、雰囲気を捉えた非常に詳細で芸術的な説明を【日本語】で作成してください。この説明はファンタジーTCGのイラスト生成に使用されます。核となるテーマは次の通りです: ${prompt}` },
-                                { type: "image_url", image_url: { url: image } }
-                            ],
-                        },
-                    ],
-                });
-                finalPrompt = visionResponse.choices[0].message.content;
-                console.log("--- GPT-4o 画像解析結果 (Japanese) ---");
-                console.log(finalPrompt);
-                console.log("--------------------------------------");
-            }
-
-            // Step 2: Generate final card with Google Imagen 4.0
-            console.log("Generating card with Google Imagen 4.0 (using Japanese Prompt)...");
+            // In current hybrid flow, the prompt already contains the analysis result if an image was uploaded.
+            // Google Imagen 4.0 will generate the final card based on this rich prompt.
+            console.log("Generating card with Google Imagen 4.0 using the provided prompt...");
             const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
 
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    instances: [{ prompt: finalPrompt }],
+                    instances: [{ prompt: prompt }],
                     parameters: {
                         sampleCount: 1,
                         aspectRatio: "3:4"
