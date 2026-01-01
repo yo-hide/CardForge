@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Input fields
     const nameInput = document.getElementById('card-name');
-    const typeInput = document.getElementById('card-type');
     const descInput = document.getElementById('card-description');
     const atkInput = document.getElementById('card-atk');
     const defInput = document.getElementById('card-def');
@@ -34,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewTitle = document.getElementById('preview-title');
     const previewRarity = document.getElementById('preview-rarity');
     const previewAttribute = document.getElementById('preview-attribute');
-    const previewType = document.getElementById('preview-type');
     const previewDesc = document.getElementById('preview-description');
     const previewAtk = document.getElementById('preview-atk');
     const previewDef = document.getElementById('preview-def');
@@ -178,10 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Real-time synchronization
     nameInput.addEventListener('input', () => {
         previewTitle.textContent = nameInput.value || 'CARD NAME';
-    });
-
-    typeInput.addEventListener('input', () => {
-        previewType.textContent = typeInput.value || '種族 / タイプ';
     });
 
     descInput.addEventListener('input', () => {
