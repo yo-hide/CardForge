@@ -22,8 +22,8 @@ app.post('/api/generate-image', async (req, res) => {
     }
 
     try {
-        // Using Google AI Studio (Gemini API) Imagen 3 endpoint
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+        // Using Google AI Studio (Gemini API) Imagen 4.0 endpoint
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
 
         const response = await fetch(url, {
             method: 'POST',
