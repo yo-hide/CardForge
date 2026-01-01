@@ -31,8 +31,10 @@
             <p class="subtitle">あなただけの伝説の一枚を創り出そう</p>
         </header>
 
-        <main>
-            <section class="editor-section">
+        <main class="vertical-flow">
+            <!-- Step 1: Image Source -->
+            <section class="step-section" id="step-1">
+                <h2 class="step-title"><span>1</span> 画像を準備する</h2>
                 <div class="glass-panel upload-panel" id="drop-zone">
                     <div class="upload-content">
                         <div class="icon-container">
@@ -50,16 +52,19 @@
                         <div class="upload-buttons">
                             <button class="btn-primary"
                                 onclick="document.getElementById('image-input').click()">ファイルを選択</button>
-                            <button id="generate-ai-img" class="btn-ai-gen">AIで画像を生成</button>
                         </div>
                     </div>
                 </div>
 
-                <div id="ai-status" class="ai-status hidden glass-panel">
-                    <div class="ai-loader"></div>
-                    <div class="ai-status-text">AIが画像を召喚中...</div>
+                <div id="safety-status" class="safety-status hidden">
+                    <span class="loader"></span>
+                    <span class="status-text">画像をスキャン中...</span>
                 </div>
+            </section>
 
+            <!-- Step 2: Card Configuration -->
+            <section class="step-section" id="step-2">
+                <h2 class="step-title"><span>2</span> カードを設定する</h2>
                 <div class="controls-panel glass-panel">
                     <div class="control-group">
                         <label>デザインテンプレート</label>
@@ -74,7 +79,7 @@
                             </label>
                             <label class="template-option">
                                 <input type="radio" name="design-template" value="onepiece">
-                                <span class="template-label">ワンピースカード風</span>
+                                <span class="template-label">ワンピ風</span>
                             </label>
                             <label class="template-option">
                                 <input type="radio" name="design-template" value="duelmasters">
@@ -112,95 +117,103 @@
                     </div>
 
                     <div class="control-group">
-                        <label>画風</label>
+                        <label>レアリティ</label>
+                        <div class="rarity-grid">
+                            <label class="rarity-option"><input type="radio" name="card-rarity" value="C"
+                                    checked><span>C</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="U"><span>U</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="R"><span>R</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="SR"><span>SR</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="RR"><span>RR</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity"
+                                    value="UR"><span>UR</span></label>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>AI画像用の画風</label>
                         <div class="artstyle-grid">
                             <label class="art-option"><input type="radio" name="card-artstyle" value="photo"
                                     checked><span class="art-label">写真風</span></label>
                             <label class="art-option"><input type="radio" name="card-artstyle"
-                                    value="classic-anime"><span class="art-label">クラシックアニメ風</span></label>
+                                    value="classic-anime"><span class="art-label">クラシックアニメ</span></label>
                             <label class="art-option"><input type="radio" name="card-artstyle"
-                                    value="modern-anime"><span class="art-label">モダンアニメ風</span></label>
+                                    value="modern-anime"><span class="art-label">モダンアニメ</span></label>
                             <label class="art-option"><input type="radio" name="card-artstyle" value="sd"><span
                                     class="art-label">SD風</span></label>
                             <label class="art-option"><input type="radio" name="card-artstyle" value="manga"><span
                                     class="art-label">マンガ風</span></label>
                             <label class="art-option"><input type="radio" name="card-artstyle" value="watercolor"><span
                                     class="art-label">水彩風</span></label>
-                            <label class="art-option"><input type="radio" name="card-artstyle" value="pop"><span
-                                    class="art-label">ポップ系</span></label>
-                            <label class="art-option"><input type="radio" name="card-artstyle" value="gothic"><span
-                                    class="art-label">ゴシック系</span></label>
                         </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label>レアリティ</label>
-                        <div class="rarity-grid"></div>
-                        <label class="rarity-option"><input type="radio" name="card-rarity" value="C"
-                                checked><span>C</span></label>
-                        <label class="rarity-option"><input type="radio" name="card-rarity"
-                                value="U"><span>U</span></label>
-                        <label class="rarity-option"><input type="radio" name="card-rarity"
-                                value="R"><span>R</span></label>
-                        <label class="rarity-option"><input type="radio" name="card-rarity"
-                                value="SR"><span>SR</span></label>
-                        <label class="rarity-option"><input type="radio" name="card-rarity"
-                                value="RR"><span>RR</span></label>
-                        <label class="rarity-option"><input type="radio" name="card-rarity"
-                                value="UR"><span>UR</span></label>
-                    </div>
-
-                </div>
-
-
-                <button id="download-btn" class="btn-secondary">カードを保存する</button>
-
-                <div id="safety-status" class="safety-status hidden">
-                    <span class="loader"></span>
-                    <span class="status-text">画像をスキャン中...</span>
-                </div>
-    </div>
-    </section>
-
-    <section class="preview-section">
-        <div class="card-container">
-            <div class="tcg-card" id="card-preview">
-                <div class="card-inner">
-                    <div class="card-header">
-                        <span class="card-title-text" id="preview-title">CARD NAME</span>
-                        <div class="card-attribute" id="preview-attribute">炎</div>
-                    </div>
-
-                    <div class="card-image-box">
-                        <img src="" id="preview-image" alt="uploaded artwork" class="hidden">
-                        <div class="image-placeholder" id="image-placeholder">
-                            <span>イメージがここに表示されます</span>
-                        </div>
-                    </div>
-
-                    <div class="card-content-box">
-                        <div class="card-description-text" id="preview-description">
-                            ここにカードの説明文が表示されます。テキストが長くなる場合は自動的に調整されます。
-                        </div>
-                        <div class="card-stats">
-                            ATK / <span id="preview-atk">0</span> DEF / <span id="preview-def">0</span>
-                        </div>
-                        <div class="card-rarity-badge" id="preview-rarity">C</div>
                     </div>
                 </div>
+            </section>
+
+            <!-- Step 3: AI Generation (Optional but emphasized) -->
+            <section class="step-section" id="step-3">
+                <h2 class="step-title"><span>3</span> AIで画像を生成（オプション）</h2>
+                <div class="ai-gen-panel glass-panel">
+                    <p class="ai-description">設定した属性や画風をもとに、AIが完全オリジナルのイラストを生成します。</p>
+                    <button id="generate-ai-img" class="btn-ai-gen full-width">AIで画像を生成する</button>
+
+                    <div id="ai-status" class="ai-status hidden glass-panel">
+                        <div class="ai-loader"></div>
+                        <div class="ai-status-text">AIが画像を召喚中...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 4: Final Preview and Download -->
+            <section class="step-section" id="step-4">
+                <h2 class="step-title"><span>4</span> 完成したカードを保存する</h2>
+                <div class="preview-container">
+                    <div class="card-display-area">
+                        <div class="tcg-card" id="card-preview">
+                            <div class="card-inner">
+                                <div class="card-header">
+                                    <span class="card-title-text" id="preview-title">Fabled Creature</span>
+                                    <div class="card-attribute" id="preview-attribute">炎</div>
+                                </div>
+
+                                <div class="card-image-box">
+                                    <img src="" id="preview-image" alt="uploaded artwork" class="hidden">
+                                    <div class="image-placeholder" id="image-placeholder">
+                                        <span>イメージがここに表示されます</span>
+                                    </div>
+                                </div>
+
+                                <div class="card-content-box">
+                                    <div class="card-description-text" id="preview-description">
+                                        設定に合わせてここに説明文が生成されます。
+                                    </div>
+                                    <div class="card-stats">
+                                        ATK / <span id="preview-atk">0</span> DEF / <span id="preview-def">0</span>
+                                    </div>
+                                    <div class="card-rarity-badge" id="preview-rarity">C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="download-btn" class="btn-secondary">画像を保存する (PNG)</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="guidelines-container glass-panel">
+                <h3>⚠️ 注意事項</h3>
+                <p>不適切なコンテンツを含む画像のアップロードは禁止されています。AI生成画像もガイドラインに準拠します。</p>
             </div>
-        </div>
-    </section>
-    </main>
-
-    <footer>
-        <div class="guidelines-container glass-panel">
-            <h3>⚠️ 画像アップロードに関する注意事項</h3>
-            <p>本ツールでは、公序良俗に反する画像、暴力的な表現、および性的コンテンツを含む画像のアップロードを固く禁じています。</p>
-            <p>アップロードされた画像は自動的にスキャンされ、不適切と判断された場合はカードの生成および保存が停止されます。健全なコミュニティ維持のため、ご理解とご協力をお願いいたします。</p>
-        </div>
-        <p>&copy; 2026 CardForge - Advanced Card Generation Engine</p>
-    </footer>
+            <p>&copy; 2026 CardForge - MTG/TCG Card Generator</p>
+        </footer>
     </div>
 
     <script src="script.js"></script>
