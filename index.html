@@ -13,6 +13,9 @@
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Content Safety Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nsfwjs@latest/dist/nsfwjs.min.js"></script>
 </head>
 
 <body>
@@ -167,6 +170,11 @@
                     </div>
 
                     <button id="download-btn" class="btn-secondary">カードを保存する</button>
+
+                    <div id="safety-status" class="safety-status hidden">
+                        <span class="loader"></span>
+                        <span class="status-text">画像をスキャン中...</span>
+                    </div>
                 </div>
             </section>
 
@@ -205,6 +213,11 @@
         </main>
 
         <footer>
+            <div class="guidelines-container glass-panel">
+                <h3>⚠️ 画像アップロードに関する注意事項</h3>
+                <p>本ツールでは、公序良俗に反する画像、暴力的な表現、および性的コンテンツを含む画像のアップロードを固く禁じています。</p>
+                <p>アップロードされた画像は自動的にスキャンされ、不適切と判断された場合はカードの生成および保存が停止されます。健全なコミュニティ維持のため、ご理解とご協力をお願いいたします。</p>
+            </div>
             <p>&copy; 2026 CardForge - Advanced Card Generation Engine</p>
         </footer>
     </div>

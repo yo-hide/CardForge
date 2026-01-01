@@ -188,6 +188,39 @@ main {
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
 }
 
+.safety-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 1rem;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--text-muted);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 /* Controls */
 .control-group {
     margin-bottom: 1.25rem;

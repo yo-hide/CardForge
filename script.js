@@ -3,6 +3,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewImage = document.getElementById('preview-image');
     const imagePlaceholder = document.getElementById('image-placeholder');
     const dropZone = document.getElementById('drop-zone');
+    const safetyStatus = document.getElementById('safety-status');
+
+    let safetyModel = null;
+
+    // Load NSFW Model
+    async function initSafetyModel() {
+        try {
+            safetyModel = await nsfwjs.load();
+            console.log("Safety model loaded.");
+        } catch (e) {
+            console.error("Model load failed", e);
+        }
+    }
+    initSafetyModel();
 
     // Input fields
     const nameInput = document.getElementById('card-name');
@@ -122,10 +136,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function handleFile(file) {
+    async function handleFile(file) {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            previewImage.src = e.target.result;
+        reader.onload = async (e) => {
+            const dataUrl = e.target.result;
+
+            // Check safety if model is loaded
+            if (safetyModel) {
+                safetyStatus.classList.remove('hidden');
+
+                // Create temp image for scanning
+                const img = new Image();
+                img.src = dataUrl;
+
+                await new Promise(resolve => img.onload = resolve);
+
+                const predictions = await safetyModel.classify(img);
+                safetyStatus.classList.add('hidden');
+
+                // Detection logic: Porn, Hentai, or Sexy above certain threshold
+                const nsfwScores = predictions.filter(p => ['Porn', 'Hentai', 'Sexy'].includes(p.className));
+                const isUnsafe = nsfwScores.some(p => p.probability > 0.5); // 50% threshold
+
+                if (isUnsafe) {
+                    alert('⚠️ 不適切なコンテンツが検出されました。この画像は使用できません。\n公序良俗に反する画像やアダルトコンテンツの利用は禁止されています。');
+                    imageInput.value = ''; // Reset input
+                    previewImage.src = '';
+                    previewImage.classList.add('hidden');
+                    imagePlaceholder.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            previewImage.src = dataUrl;
             previewImage.classList.remove('hidden');
             imagePlaceholder.classList.add('hidden');
         };
