@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardForge | トレーディングカード生成ツール</title>
+    <meta name="description" content="アップロードした画像からオリジナルのトレーディングカードを簡単に作成・生成できるツールです。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Noto+Sans+JP:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <header>
+            <h1 class="logo">CardForge</h1>
+            <p class="subtitle">あなただけの伝説の一枚を創り出そう</p>
+        </header>
+
+        <main>
+            <section class="editor-section">
+                <div class="glass-panel upload-panel" id="drop-zone">
+                    <div class="upload-content">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                        </div>
+                        <h3>画像をアップロード</h3>
+                        <p>または、ここにドラッグ＆ドロップ</p>
+                        <input type="file" id="image-input" accept="image/*" hidden>
+                        <button class="btn-primary"
+                            onclick="document.getElementById('image-input').click()">ファイルを選択</button>
+                    </div>
+                </div>
+
+                <div class="controls-panel glass-panel">
+                    <div class="control-group">
+                        <label for="card-name">カード名</label>
+                        <input type="text" id="card-name" placeholder="例: 伝説の龍" maxlength="20">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="card-type">種族 / タイプ</label>
+                        <input type="text" id="card-type" placeholder="例: ドラゴン / 火" maxlength="15">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="card-description">説明文</label>
+                        <textarea id="card-description" placeholder="カードの効果やフレーバーテキストを入力してください..." rows="4"></textarea>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="control-group">
+                            <label for="card-atk">ATK</label>
+                            <input type="number" id="card-atk" placeholder="3000">
+                        </div>
+                        <div class="control-group">
+                            <label for="card-def">DEF</label>
+                            <input type="number" id="card-def" placeholder="2500">
+                        </div>
+                    </div>
+
+                    <button id="download-btn" class="btn-secondary">カードを保存する</button>
+                </div>
+            </section>
+
+            <section class="preview-section">
+                <div class="card-container">
+                    <div class="tcg-card" id="card-preview">
+                        <div class="card-inner">
+                            <div class="card-header">
+                                <span class="card-title-text" id="preview-title">CARD NAME</span>
+                                <div class="card-attribute" id="preview-attribute">光</div>
+                            </div>
+
+                            <div class="card-image-box">
+                                <img src="" id="preview-image" alt="uploaded artwork" class="hidden">
+                                <div class="image-placeholder" id="image-placeholder">
+                                    <span>イメージがここに表示されます</span>
+                                </div>
+                            </div>
+
+                            <div class="card-content-box">
+                                <div class="card-type-line">
+                                    【<span id="preview-type">種族 / タイプ</span>】
+                                </div>
+                                <div class="card-description-text" id="preview-description">
+                                    ここにカードの説明文が表示されます。テキストが長くなる場合は自動的に調整されます。
+                                </div>
+                                <div class="card-stats">
+                                    ATK / <span id="preview-atk">0</span> DEF / <span id="preview-def">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 CardForge - Advanced Card Generation Engine</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
