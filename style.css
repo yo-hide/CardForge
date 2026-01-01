@@ -220,6 +220,45 @@ main {
     border-color: var(--primary);
 }
 
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.template-option {
+    cursor: pointer;
+    position: relative;
+}
+
+.template-option input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.template-label {
+    display: block;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+    color: var(--text-muted);
+    line-height: 1.2;
+}
+
+.template-option input:checked+.template-label {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -336,6 +375,100 @@ main {
     border-top: 1px solid #ccc;
     padding-top: 4px;
     font-size: 0.9rem;
+}
+
+/* Theme Variants */
+
+/* 遊戯王風 (Default/Already implemented mostly) */
+.tcg-card.theme-yugioh {
+    background: linear-gradient(135deg, #a67c52, #5d4037);
+    border-color: #8d6e63;
+}
+
+/* ポケカ風 */
+.tcg-card.theme-pokemon {
+    background: linear-gradient(135deg, #ffde00, #f6cf00);
+    border: 8px solid #3b4cca;
+    border-radius: 20px;
+}
+
+.tcg-card.theme-pokemon .card-header {
+    background: transparent;
+    border-bottom: none;
+    flex-direction: row-reverse;
+}
+
+.tcg-card.theme-pokemon .card-title-text {
+    color: #333;
+    text-shadow: none;
+    font-size: 1.4rem;
+}
+
+.tcg-card.theme-pokemon .card-image-box {
+    border: 4px solid #777;
+    border-radius: 4px;
+}
+
+.tcg-card.theme-pokemon .card-content-box {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    border: none;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ワンピース風 */
+.tcg-card.theme-onepiece {
+    background: #004d40;
+    border: 6px solid #ffca28;
+}
+
+.tcg-card.theme-onepiece .card-title-text {
+    font-family: 'serif';
+    letter-spacing: 2px;
+}
+
+.tcg-card.theme-onepiece .card-content-box {
+    background: #fff8e1;
+    border: 2px solid #5d4037;
+}
+
+/* デュエマ風 */
+.tcg-card.theme-duelmasters {
+    background: #455a64;
+    border: 5px solid #263238;
+}
+
+.tcg-card.theme-duelmasters .card-inner {
+    border: 2px solid #cfd8dc;
+    padding: 2px;
+}
+
+.tcg-card.theme-duelmasters .card-image-box {
+    aspect-ratio: 1;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 50% 100%, 0% 90%);
+}
+
+/* MtG風 */
+.tcg-card.theme-mtg {
+    background: #1a1a1a;
+    border: 4px solid #000;
+    border-radius: 20px;
+}
+
+.tcg-card.theme-mtg .card-inner {
+    background: #4e342e;
+    /* Land-like brown */
+    border-radius: 16px;
+    padding: 10px;
+    border: 1px solid #333;
+}
+
+.tcg-card.theme-mtg .card-header,
+.tcg-card.theme-mtg .card-content-box {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    border: 1px solid #000;
+    color: #111;
 }
 
 .hidden {

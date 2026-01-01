@@ -10,13 +10,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const descInput = document.getElementById('card-description');
     const atkInput = document.getElementById('card-atk');
     const defInput = document.getElementById('card-def');
+    const templateInputs = document.querySelectorAll('input[name="design-template"]');
 
     // Preview elements
+    const cardPreview = document.getElementById('card-preview');
     const previewTitle = document.getElementById('preview-title');
     const previewType = document.getElementById('preview-type');
     const previewDesc = document.getElementById('preview-description');
     const previewAtk = document.getElementById('preview-atk');
     const previewDef = document.getElementById('preview-def');
+
+    // Initialize theme
+    cardPreview.classList.add('theme-yugioh');
+
+    // Handle Template Changes
+    templateInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+            // Remove all possible theme classes
+            cardPreview.classList.forEach(className => {
+                if (className.startsWith('theme-')) {
+                    cardPreview.classList.remove(className);
+                }
+            });
+            // Add new theme class
+            cardPreview.classList.add(`theme-${e.target.value}`);
+        });
+    });
 
     // Handle image upload
     imageInput.addEventListener('change', (e) => {
