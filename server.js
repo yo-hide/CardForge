@@ -80,7 +80,10 @@ app.post('/api/generate-image', async (req, res) => {
             if (data.predictions && data.predictions[0]) {
                 const base64Data = data.predictions[0].bytesBase64Encoded;
                 const mimeType = data.predictions[0].mimeType || 'image/png';
-                return res.json({ data: [{ url: `data:${mimeType};base64,${base64Data}` }] });
+                return res.json({
+                    data: [{ url: `data:${mimeType};base64,${base64Data}` }],
+                    analysis: finalPrompt
+                });
             }
             throw new Error('No image data received from Google.');
         } catch (error) {

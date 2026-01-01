@@ -308,6 +308,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const imageUrl = data.data[0].url;
 
+            if (data.analysis) {
+                console.log("--- GPT-4o 画像解析結果 (Japanese) ---");
+                console.log(data.analysis);
+                console.log("--------------------------------------");
+            }
+
             // Switch to Full AI Card mode
             cardPreview.classList.add('full-ai-card');
 
