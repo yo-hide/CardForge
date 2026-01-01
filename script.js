@@ -18,9 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     initSafetyModel();
 
-    // Input fields
     const nameInput = document.getElementById('card-name');
-    const descInput = document.getElementById('card-description');
     const atkInput = document.getElementById('card-atk');
     const defInput = document.getElementById('card-def');
     const templateInputs = document.querySelectorAll('input[name="design-template"]');
@@ -89,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             // Add new attribute class
             cardPreview.classList.add(`attr-${val}`);
+            updateAIDescription();
         });
     });
 
@@ -176,11 +175,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Real-time synchronization
     nameInput.addEventListener('input', () => {
         previewTitle.textContent = nameInput.value || 'CARD NAME';
+        updateAIDescription();
     });
 
-    descInput.addEventListener('input', () => {
-        previewDesc.textContent = descInput.value || 'ここにカードの説明文が表示されます。';
-    });
+    function updateAIDescription() {
+        const name = nameInput.value || 'This creature';
+        const attrElement = document.querySelector('input[name="card-attribute"]:checked');
+        const attribute = attrElement ? attrElement.parentElement.querySelector('.attr-label').textContent : 'Neutral';
+
+        const templates = [
+            `A legendary manifestation of ${attribute}, known throughout history as "${name}".`,
+            `The power of ${attribute} flows through ${name}, granting it unmatched strength.`,
+            `Wherever ${name} appears, the air thickens with the essence of ${attribute}.`,
+            `Forged in the heart of ${attribute}, ${name} stands as a testament to pure power.`,
+            `An ancient guardian bound to the element of ${attribute}, ${name} awaits its next master.`
+        ];
+
+        // Pseudo-random but consistent based on name length
+        const index = name.length % templates.length;
+        previewDesc.textContent = templates[index];
+    }
 
     atkInput.addEventListener('input', () => {
         previewAtk.textContent = atkInput.value || '0';

@@ -132,25 +132,14 @@
 
                     <div class="control-group">
                         <label>レアリティ</label>
-                        <div class="rarity-grid">
-                            <label class="rarity-option"><input type="radio" name="card-rarity" value="C"
-                                    checked><span>C</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity"
-                                    value="U"><span>U</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity"
-                                    value="R"><span>R</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity"
-                                    value="SR"><span>SR</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity"
-                                    value="RR"><span>RR</span></label>
-                            <label class="rarity-option"><input type="radio" name="card-rarity"
-                                    value="UR"><span>UR</span></label>
+                        <div class="rarity-grid"></div>
+                            <label class="rarity-option"><input type="radio" name="card-rarity" value="C" checked><span>C</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity" value="U"><span>U</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity" value="R"><span>R</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity" value="SR"><span>SR</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity" value="RR"><span>RR</span></label>
+                            <label class="rarity-option"><input type="radio" name="card-rarity" value="UR"><span>UR</span></label>
                         </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="card-description">説明文</label>
-                        <textarea id="card-description" placeholder="カードの効果やフレーバーテキストを入力してください..." rows="4"></textarea>
                     </div>
 
                     <div class="stats-grid">
@@ -164,13 +153,13 @@
                         </div>
                     </div>
 
-                    <button id="download-btn" class="btn-secondary">カードを保存する</button>
+                        <button id="download-btn" class="btn-secondary">カードを保存する</button>
 
-                    <div id="safety-status" class="safety-status hidden">
-                        <span class="loader"></span>
-                        <span class="status-text">画像をスキャン中...</span>
+                        <div id="safety-status" class="safety-status hidden">
+                            <span class="loader"></span>
+                            <span class="status-text">画像をスキャン中...</span>
+                        </div>
                     </div>
-                </div>
             </section>
 
             <section class="preview-section">
