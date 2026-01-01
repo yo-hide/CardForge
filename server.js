@@ -48,7 +48,25 @@ app.post('/api/generate-image', async (req, res) => {
         if (data.error) {
             const errorMessage = data.error.message || (typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
             console.error('Google API Error:', errorMessage);
-            // Propagate the error to the outer catch block
+
+            // If model not found, try to list available models to console for debugging
+            if (response.status === 404 || errorMessage.includes('not found')) {
+                try {
+                    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+                    const listRes = await fetch(listUrl);
+                    const listData = await listRes.json();
+                    console.log('--- Available Models ---');
+                    if (listData.models) {
+                        listData.models.forEach(m => console.log(`- ${m.name} (methods: ${m.supportedGenerationMethods})`));
+                    } else {
+                        console.log('Could not retrieve model list:', JSON.stringify(listData));
+                    }
+                    console.log('-------------------------');
+                } catch (listErr) {
+                    console.error('Failed to list models:', listErr);
+                }
+            }
+
             throw new Error(`Google API Error: ${errorMessage}`);
         }
 
