@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const templateInputs = document.querySelectorAll('input[name="design-template"]');
     const rarityInputs = document.querySelectorAll('input[name="card-rarity"]');
     const attributeInputs = document.querySelectorAll('input[name="card-attribute"]');
+    const artstyleInputs = document.querySelectorAll('input[name="card-artstyle"]');
 
     // Preview elements
     const cardPreview = document.getElementById('card-preview');
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cardPreview.classList.add('theme-yugioh');
     cardPreview.classList.add('rarity-C');
     cardPreview.classList.add('attr-fire');
+    cardPreview.classList.add('artstyle-photo');
 
     // Handle Template Changes
     templateInputs.forEach(input => {
@@ -75,6 +77,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             // Add new attribute class
             cardPreview.classList.add(`attr-${val}`);
+        });
+    });
+
+    // Handle Art Style Changes
+    artstyleInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+            const val = e.target.value;
+            // Remove old artstyle class
+            cardPreview.classList.forEach(className => {
+                if (className.startsWith('artstyle-')) {
+                    cardPreview.classList.remove(className);
+                }
+            });
+            // Add new artstyle class
+            cardPreview.classList.add(`artstyle-${val}`);
         });
     });
 
