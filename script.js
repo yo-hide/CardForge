@@ -235,7 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.error) {
-                throw new Error(data.error.message);
+                const errorMessage = typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error));
+                throw new Error(errorMessage);
             }
 
             const imageUrl = data.data[0].url;

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -41,8 +42,14 @@ app.post('/api/generate-image', async (req, res) => {
 
         const data = await response.json();
 
+        // Log the full API response for debugging
+        console.log('Google API Response:', JSON.stringify(data, null, 2));
+
         if (data.error) {
-            return res.status(response.status).json({ error: data.error.message });
+            const errorMessage = data.error.message || (typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
+            console.error('Google API Error:', errorMessage);
+            // Propagate the error to the outer catch block
+            throw new Error(`Google API Error: ${errorMessage}`);
         }
 
         // Google returns base64 in predictions[0].bytesBase64Encoded
@@ -65,7 +72,7 @@ app.post('/api/generate-image', async (req, res) => {
         }
     } catch (error) {
         console.error('Proxy Error:', error);
-        res.status(500).json({ error: 'Failed to generate image due to server error.' });
+        res.status(500).json({ error: error.message || 'Failed to generate image due to server error.' });
     }
 });
 
