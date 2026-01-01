@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load NSFW Model
     async function initSafetyModel() {
         try {
-            safetyModel = await nsfwjs.load();
+            // Use a stable CDN path for the model files
+            safetyModel = await nsfwjs.load('./lib/models/');
             console.log("Safety model loaded.");
         } catch (e) {
             console.error("Model load failed", e);
