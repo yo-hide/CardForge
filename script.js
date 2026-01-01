@@ -18,8 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     initSafetyModel();
 
-    const atkInput = document.getElementById('card-atk');
-    const defInput = document.getElementById('card-def');
     const templateInputs = document.querySelectorAll('input[name="design-template"]');
     const rarityInputs = document.querySelectorAll('input[name="card-rarity"]');
     const attributeInputs = document.querySelectorAll('input[name="card-attribute"]');
@@ -71,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             // Add new rarity class
             cardPreview.classList.add(`rarity-${val}`);
+            updateAICardData();
         });
     });
 
@@ -216,15 +215,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // Pick description based on rarity for more flavor later, currently using simple index
         const descIdx = Math.abs(generatedName.length) % descTemplates.length;
         previewDesc.textContent = descTemplates[descIdx];
+
+        // 3. Stats Generation Logic (based on Rarity)
+        const rarityElement = document.querySelector('input[name="card-rarity"]:checked');
+        const rarity = rarityElement ? rarityElement.value : 'C';
+
+        const statsMap = {
+            'C': { base: 200, range: 800 },
+            'U': { base: 1000, range: 1000 },
+            'R': { base: 2000, range: 1000 },
+            'SR': { base: 3000, range: 1000 },
+            'RR': { base: 4000, range: 1500 },
+            'UR': { base: 6000, range: 3000 }
+        };
+
+        const config = statsMap[rarity];
+        // Use pseudo-randomness seeded by name for consistency
+        const seed = generatedName.length + generatedName.charCodeAt(0);
+        const generatedAtk = config.base + (seed * 13) % config.range;
+        const generatedDef = config.base + (seed * 17) % config.range;
+
+        // Round to nearest 100
+        previewAtk.textContent = Math.round(generatedAtk / 100) * 100;
+        previewDef.textContent = Math.round(generatedDef / 100) * 100;
     }
 
-    atkInput.addEventListener('input', () => {
-        previewAtk.textContent = atkInput.value || '0';
-    });
-
-    defInput.addEventListener('input', () => {
-        previewDef.textContent = defInput.value || '0';
-    });
 
     // Download functionality
     const downloadBtn = document.getElementById('download-btn');
