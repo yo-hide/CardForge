@@ -4,13 +4,35 @@ const path = require('path');
 // 1. package.json のバージョンを更新
 const pkgPath = path.join(__dirname, 'package.json');
 const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-const versionParts = pkg.version.split('.').map(Number);
 
-// 末尾のパッチバージョンをインクリメント
-versionParts[2] += 1;
-const newVersion = versionParts.join('.');
+// バージョン形式を X.YYY に合わせる
+let versionStr = pkg.version;
+
+// NaN になっていた場合のリカバリ、およびパッチ抽出
+let major = 1;
+let patch = 0;
+
+if (versionStr && !versionStr.includes('NaN')) {
+    let parts = versionStr.split('.');
+    major = parseInt(parts[0]) || 1;
+    patch = parseInt(parts[1]) || 0;
+} else {
+    // 壊れていた場合は 1.001 から再開（現在の想定）
+    patch = 1;
+}
+
+// インクリメント
+patch += 1;
+if (patch > 999) {
+    major += 1;
+    patch = 0;
+}
+
+// 0埋めして 1.002 形式にする
+const formattedPatch = String(patch).padStart(3, '0');
+const newVersion = `${major}.${formattedPatch}`;
+
 pkg.version = newVersion;
-
 fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 console.log(`Package version updated to: ${newVersion}`);
 
@@ -18,7 +40,6 @@ console.log(`Package version updated to: ${newVersion}`);
 const htmlPath = path.join(__dirname, 'index.html');
 let html = fs.readFileSync(htmlPath, 'utf8');
 
-// <p class="version">Ver.x.x.x</p> の部分を置換
 const versionRegex = /<p class="version">Ver\..*?<\/p>/;
 const newVersionTag = `<p class="version">Ver.${newVersion}</p>`;
 

@@ -249,6 +249,20 @@ header {
     transform: scale(0.96);
 }
 
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+}
+
+.btn-share {
+    background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
 .full-width {
     width: 100%;
 }
@@ -761,7 +775,8 @@ footer {
 
 .guidelines-container {
     text-align: left;
-    margin-bottom: 2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0;
     padding: 1.5rem;
 }
 

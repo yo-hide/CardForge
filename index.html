@@ -29,7 +29,7 @@
         <header>
             <h1 class="logo">CardForge</h1>
             <p class="subtitle">あなただけの伝説の一枚を創り出そう</p>
-            <p class="version">Ver.1.0.0</p>
+            <p class="version">Ver.1.002</p>
         </header>
 
         <main class="vertical-flow">
@@ -60,6 +60,11 @@
                 <div id="safety-status" class="safety-status hidden">
                     <span class="loader"></span>
                     <span class="status-text">画像をスキャン中...</span>
+                </div>
+
+                <div class="guidelines-container glass-panel">
+                    <h3>⚠️ 注意事項</h3>
+                    <p>不適切なコンテンツを含む画像のアップロードは禁止されています。AI生成画像もガイドラインに準拠します。</p>
                 </div>
             </section>
 
@@ -170,7 +175,7 @@
             </section>
 
             <!-- Step 4: Final Preview and Download -->
-            <section class="step-section" id="step-4">
+            <section class="step-section hidden" id="step-4">
                 <h2 class="step-title"><span>4</span> 完成したカードを保存する</h2>
                 <div class="preview-container">
                     <div class="card-display-area">
@@ -202,17 +207,14 @@
                     </div>
 
                     <div class="action-buttons">
-                        <button id="download-btn" class="btn-secondary">画像を保存する (PNG)</button>
+                        <button id="download-btn" class="btn-secondary">画像を保存する</button>
+                        <button id="share-btn" class="btn-share">SNSでシェアする</button>
                     </div>
                 </div>
             </section>
         </main>
 
         <footer>
-            <div class="guidelines-container glass-panel">
-                <h3>⚠️ 注意事項</h3>
-                <p>不適切なコンテンツを含む画像のアップロードは禁止されています。AI生成画像もガイドラインに準拠します。</p>
-            </div>
             <p>&copy; 2026 CardForge - MTG/TCG Card Generator</p>
         </footer>
     </div>

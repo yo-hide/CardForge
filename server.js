@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, './')));
 
 // Proxy endpoint for Google Imagen 3 image generation
 app.post('/api/generate-image', async (req, res) => {
-    const { prompt } = req.body;
+    const { prompt, image } = req.body;
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
@@ -25,17 +25,26 @@ app.post('/api/generate-image', async (req, res) => {
         // Using Google AI Studio (Gemini API) Imagen 4.0 endpoint
         const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
 
+        const instance = { prompt: prompt };
+
+        // If an image is provided, include it in the instance for image-to-image
+        if (image && image.includes('base64,')) {
+            const base64Data = image.split('base64,').pop();
+            instance.image = {
+                bytesBase64Encoded: base64Data
+            };
+        }
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                instances: [
-                    { prompt: prompt }
-                ],
+                instances: [instance],
                 parameters: {
-                    sampleCount: 1
+                    sampleCount: 1,
+                    aspectRatio: "1:1"
                 }
             })
         });

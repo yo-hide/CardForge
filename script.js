@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     cardPreview.classList.add('attr-fire');
     cardPreview.classList.add('artstyle-photo');
 
-    // Initial generation
-    updateAICardData();
+    // Remove initial generation to keep preview hidden until needed
+    // updateAICardData();
 
     // Handle Template Changes
     templateInputs.forEach(input => {
@@ -149,6 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
             previewImage.src = dataUrl;
             previewImage.classList.remove('hidden');
             imagePlaceholder.classList.add('hidden');
+
+            // Show the preview section once an image is ready
+            document.getElementById('step-4').classList.remove('hidden');
         };
         reader.readAsDataURL(file);
     }
@@ -217,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const artStyleLabel = artElement ? artElement.parentElement.querySelector('.art-label').textContent : 'Standard';
 
         const prompt = `Fantasy TCG card illustration of ${name}, ${attribute} element, ${artStyleLabel} art style, high quality, highly detailed, masterpiece.`;
+        const currentImage = previewImage.src.startsWith('data:') ? previewImage.src : null;
 
         aiStatus.classList.remove('hidden');
         aiGenBtn.disabled = true;
@@ -228,7 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    prompt: prompt
+                    prompt: prompt,
+                    image: currentImage
                 })
             });
 
@@ -245,6 +250,9 @@ document.addEventListener('DOMContentLoaded', () => {
             previewImage.src = imageUrl;
             previewImage.classList.remove('hidden');
             imagePlaceholder.classList.add('hidden');
+
+            // Show the preview section
+            document.getElementById('step-4').classList.remove('hidden');
 
             // Success feedback
             console.log("Successfully generated image:", imageUrl);
@@ -268,9 +276,63 @@ document.addEventListener('DOMContentLoaded', () => {
             logging: false
         }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `cardforge_card.png`;
+            link.download = `cardforge_${previewTitle.textContent}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
         });
     });
+
+    // Share functionality
+    const shareBtn = document.getElementById('share-btn');
+    shareBtn.addEventListener('click', async () => {
+        const card = document.getElementById('card-preview');
+        const cardName = previewTitle.textContent;
+        const rarity = previewRarity.textContent;
+        const attribute = previewAttribute.textContent;
+
+        const shareText = `「${cardName}」を召喚した！\nレアリティ: ${rarity} / 属性: ${attribute}\nあなたも伝説の一枚を創り出そう！\n#CardForge #AIトレカ`;
+        const shareUrl = window.location.href;
+
+        try {
+            const canvas = await html2canvas(card, {
+                backgroundColor: null,
+                scale: 2,
+                useCORS: true,
+                logging: false
+            });
+
+            // Convert canvas to blob
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const file = new File([blob], `cardforge_${cardName}.png`, { type: 'image/png' });
+
+            // Check if Web Share API supports file sharing
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'CardForge',
+                    text: shareText
+                });
+                console.log('Successfully shared via Web Share API');
+            } else {
+                // Fallback for PC or browsers that don't support file sharing
+                const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText + "\n" + shareUrl)}`;
+
+                // Copy image to clipboard as another fallback attempt
+                try {
+                    const item = new ClipboardItem({ "image/png": blob });
+                    await navigator.clipboard.write([item]);
+                    alert('カード画像をクリップボードにコピーしました。\nXの投稿画面で貼り付け(Ctrl+V)て、ダウンロードした画像を添付して投稿してください！');
+                } catch (e) {
+                    alert('画像を保存して、Xの投稿に添付してシェアしてください！');
+                }
+
+                // Open X intent
+                window.open(tweetUrl, '_blank');
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+            alert('共有中にエラーが発生しました。');
+        }
+    });
 });
+
